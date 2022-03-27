@@ -1,11 +1,7 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
-use chrono::offset::Utc;
-use chrono::{DateTime, Duration};
 use clap::{crate_description, crate_name, crate_version, Arg, ArgEnum, Command, PossibleValue};
-
-use crate::parse::CronCalender;
 
 pub(crate) const SCALE: &str = "scale";
 
@@ -57,21 +53,4 @@ pub(crate) fn build() -> Command<'static> {
                 .possible_values(Scale::possible_values())
                 .required(false),
         )
-}
-
-pub(crate) fn format_cal(cal: &CronCalender, scale: usize, start: DateTime<Utc>) -> String {
-    cal.chunks(scale)
-        .map(|b| b.any())
-        .enumerate()
-        .filter_map(|(i, b)| {
-            if b {
-                let start = start + Duration::minutes((i * scale) as i64);
-                let end = start + Duration::minutes(scale as i64);
-                Some(format!("{} ~ {}", start, end))
-            } else {
-                None
-            }
-        })
-        .collect::<Vec<String>>()
-        .join("\n")
 }

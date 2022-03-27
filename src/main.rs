@@ -5,6 +5,7 @@ use std::str::FromStr;
 use chrono::Utc;
 
 mod cli;
+mod format;
 mod parse;
 
 const TIME_REQUIRED: usize = 5;
@@ -35,5 +36,5 @@ fn main() {
         process::exit(1);
     });
     // output
-    println!("{}", cli::format_cal(&cal, scale, today));
+    println!("{}", format::format_cal(&cal, scale, today));
 }
