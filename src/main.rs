@@ -2,7 +2,8 @@ use std::io::{self, prelude::*};
 use std::process;
 use std::str::FromStr;
 
-use chrono::Utc;
+use chrono::naive::NaiveDate;
+use chrono::{DateTime, Utc};
 
 mod cli;
 mod format;
@@ -21,6 +22,14 @@ fn main() {
         cli::Scale::Hour => 60,
     };
     let spare = matches.is_present(cli::SPARE);
+    let date = matches
+        .value_of(cli::DATE)
+        .map(|s| {
+            NaiveDate::parse_from_str(s, "%Y-%m-%d")
+                .map(|n| DateTime::<Utc>::from_utc(n.and_hms(0, 0, 0), Utc))
+        })
+        .unwrap_or(Ok(Utc::today().and_hms(0, 0, 0)))
+        .expect("Failed to parse date option");
     // input
     let stdin = io::stdin();
     let mut buf = String::new();
@@ -30,8 +39,7 @@ fn main() {
         .expect("Failed to read stdin");
     let mut input = buf.as_bytes();
     // parse
-    let today = Utc::today().and_hms(0, 0, 0);
-    let cal = parse::parse(&mut input, today).unwrap_or_else(|e| {
+    let cal = parse::parse(&mut input, date).unwrap_or_else(|e| {
         eprintln!("{}", e);
         process::exit(1);
     });
@@ -39,9 +47,9 @@ fn main() {
     println!(
         "{}",
         if spare {
-            format::format_cal_spare(&cal, scale, today)
+            format::format_cal_spare(&cal, scale, date)
         } else {
-            format::format_cal(&cal, scale, today)
+            format::format_cal(&cal, scale, date)
         }
     );
 }

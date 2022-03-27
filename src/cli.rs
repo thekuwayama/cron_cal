@@ -5,6 +5,7 @@ use clap::{crate_description, crate_name, crate_version, Arg, ArgEnum, Command, 
 
 pub(crate) const SCALE: &str = "scale";
 pub(crate) const SPARE: &str = "spare";
+pub(crate) const DATE: &str = "date";
 
 #[derive(ArgEnum, Clone, Copy)]
 pub(crate) enum Scale {
@@ -61,6 +62,14 @@ pub(crate) fn build() -> Command<'static> {
                 .long(SPARE)
                 .help("print the spare time")
                 .takes_value(false)
+                .required(false),
+        )
+        .arg(
+            Arg::new(DATE)
+                .long(DATE)
+                .short('d')
+                .help("start date")
+                .takes_value(true)
                 .required(false),
         )
 }
