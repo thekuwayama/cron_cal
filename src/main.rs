@@ -20,6 +20,7 @@ fn main() {
         cli::Scale::Half => 30,
         cli::Scale::Hour => 60,
     };
+    let spare = matches.is_present(cli::SPARE);
     // input
     let stdin = io::stdin();
     let mut buf = String::new();
@@ -35,5 +36,12 @@ fn main() {
         process::exit(1);
     });
     // output
-    println!("{}", format::format_cal(&cal, scale, today));
+    println!(
+        "{}",
+        if spare {
+            format::format_cal_spare(&cal, scale, today)
+        } else {
+            format::format_cal(&cal, scale, today)
+        }
+    );
 }

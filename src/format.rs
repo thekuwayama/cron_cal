@@ -20,6 +20,23 @@ pub(crate) fn format_cal(cal: &CronCalender, scale: usize, start: DateTime<Utc>)
         .join("\n")
 }
 
+pub(crate) fn format_cal_spare(cal: &CronCalender, scale: usize, start: DateTime<Utc>) -> String {
+    cal.chunks(scale)
+        .map(|b| b.not_any())
+        .enumerate()
+        .filter_map(|(i, b)| {
+            if b {
+                let start = start + Duration::minutes((i * scale) as i64);
+                let end = start + Duration::minutes(scale as i64);
+                Some(format!("{} ~ {}", start, end))
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<String>>()
+        .join("\n")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -50,5 +67,25 @@ mod tests {
         // 60
         let result = format_cal(&cal, HOUR, target);
         assert_eq!(result, "2018-06-01 09:00:00 UTC ~ 2018-06-01 10:00:00 UTC\n2018-06-01 12:00:00 UTC ~ 2018-06-01 13:00:00 UTC\n2018-06-01 15:00:00 UTC ~ 2018-06-01 16:00:00 UTC");
+    }
+
+    #[test]
+    fn test_format_cal_spare() {
+        let mut cal = CronCalender::default();
+        // -> 2018-06-01 09:30:00 UTC
+        (0..570).for_each(|i| cal.set(i, true));
+        // -> 2018-06-01 12:30:00 UTC
+        (750..1440).for_each(|i| cal.set(i, true));
+        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+
+        // 15
+        let result = format_cal_spare(&cal, QUARTER, target);
+        assert_eq!(result, "2018-06-01 09:30:00 UTC ~ 2018-06-01 09:45:00 UTC\n2018-06-01 09:45:00 UTC ~ 2018-06-01 10:00:00 UTC\n2018-06-01 10:00:00 UTC ~ 2018-06-01 10:15:00 UTC\n2018-06-01 10:15:00 UTC ~ 2018-06-01 10:30:00 UTC\n2018-06-01 10:30:00 UTC ~ 2018-06-01 10:45:00 UTC\n2018-06-01 10:45:00 UTC ~ 2018-06-01 11:00:00 UTC\n2018-06-01 11:00:00 UTC ~ 2018-06-01 11:15:00 UTC\n2018-06-01 11:15:00 UTC ~ 2018-06-01 11:30:00 UTC\n2018-06-01 11:30:00 UTC ~ 2018-06-01 11:45:00 UTC\n2018-06-01 11:45:00 UTC ~ 2018-06-01 12:00:00 UTC\n2018-06-01 12:00:00 UTC ~ 2018-06-01 12:15:00 UTC\n2018-06-01 12:15:00 UTC ~ 2018-06-01 12:30:00 UTC");
+        // 30
+        let result = format_cal_spare(&cal, HALF, target);
+        assert_eq!(result, "2018-06-01 09:30:00 UTC ~ 2018-06-01 10:00:00 UTC\n2018-06-01 10:00:00 UTC ~ 2018-06-01 10:30:00 UTC\n2018-06-01 10:30:00 UTC ~ 2018-06-01 11:00:00 UTC\n2018-06-01 11:00:00 UTC ~ 2018-06-01 11:30:00 UTC\n2018-06-01 11:30:00 UTC ~ 2018-06-01 12:00:00 UTC\n2018-06-01 12:00:00 UTC ~ 2018-06-01 12:30:00 UTC");
+        // 60
+        let result = format_cal_spare(&cal, HOUR, target);
+        assert_eq!(result, "2018-06-01 10:00:00 UTC ~ 2018-06-01 11:00:00 UTC\n2018-06-01 11:00:00 UTC ~ 2018-06-01 12:00:00 UTC");
     }
 }

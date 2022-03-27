@@ -4,6 +4,7 @@ use std::str::FromStr;
 use clap::{crate_description, crate_name, crate_version, Arg, ArgEnum, Command, PossibleValue};
 
 pub(crate) const SCALE: &str = "scale";
+pub(crate) const SPARE: &str = "spare";
 
 #[derive(ArgEnum, Clone, Copy)]
 pub(crate) enum Scale {
@@ -47,10 +48,19 @@ pub(crate) fn build() -> Command<'static> {
         .about(crate_description!())
         .arg(
             Arg::new(SCALE)
+                .long(SCALE)
+                .short('s')
                 .help("scale of schedule")
                 .default_value("hour")
                 .takes_value(true)
                 .possible_values(Scale::possible_values())
+                .required(false),
+        )
+        .arg(
+            Arg::new(SPARE)
+                .long(SPARE)
+                .help("print the spare time")
+                .takes_value(false)
                 .required(false),
         )
 }
