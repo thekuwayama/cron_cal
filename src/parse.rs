@@ -2,15 +2,11 @@ use std::io::BufRead;
 use std::str::FromStr;
 
 use anyhow::{anyhow, Result};
-use bitvec::prelude::*;
 use chrono::offset::Utc;
 use chrono::{DateTime, Duration};
 use cron::Schedule;
 
-const MINUTES_OF_HOUR: usize = 60;
-const MINUTES_OF_DAY: usize = 24 * MINUTES_OF_HOUR;
-
-pub(crate) type CronCalender = BitArray<[u8; MINUTES_OF_DAY / 8]>;
+use crate::r#type::{CronCalender, MINUTES_OF_DAY, MINUTES_OF_HOUR};
 
 fn do_parse<R: BufRead>(reader: &mut R) -> Result<Vec<Schedule>> {
     let (vec, err): (Vec<_>, Vec<_>) = reader
@@ -30,7 +26,7 @@ pub(crate) fn parse<R: BufRead>(
     time_required: usize,
     target: DateTime<Utc>,
 ) -> Result<CronCalender> {
-    let mut result = BitArray::<[u8; MINUTES_OF_DAY / 8]>::default();
+    let mut result = CronCalender::default();
     let next_day = target + Duration::days(1);
 
     do_parse(reader)?.into_iter().for_each(|s| {

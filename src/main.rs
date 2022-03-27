@@ -7,6 +7,7 @@ use chrono::Utc;
 mod cli;
 mod format;
 mod parse;
+mod r#type;
 
 const TIME_REQUIRED: usize = 5;
 

@@ -1,7 +1,7 @@
 use chrono::offset::Utc;
 use chrono::{DateTime, Duration};
 
-use crate::parse::CronCalender;
+use crate::r#type::CronCalender;
 
 pub(crate) fn format_cal(cal: &CronCalender, scale: usize, start: DateTime<Utc>) -> String {
     cal.chunks(scale)
