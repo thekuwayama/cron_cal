@@ -3,7 +3,8 @@ use std::str::FromStr;
 
 use anyhow::{anyhow, Result};
 use bitvec::prelude::*;
-use chrono::{Duration, Utc};
+use chrono::offset::Utc;
+use chrono::{DateTime, Duration};
 use cron::Schedule;
 
 const MINUTES_OF_HOUR: usize = 60;
@@ -24,20 +25,23 @@ fn do_parse<R: BufRead>(reader: &mut R) -> Result<Vec<Schedule>> {
     Ok(vec.into_iter().map(Result::unwrap).collect())
 }
 
-pub(crate) fn parse<R: BufRead>(reader: &mut R, time_required: usize) -> Result<CronCalender> {
+pub(crate) fn parse<R: BufRead>(
+    reader: &mut R,
+    time_required: usize,
+    target: DateTime<Utc>,
+) -> Result<CronCalender> {
     let mut result = BitArray::<[u8; MINUTES_OF_DAY / 8]>::default();
-    let today = Utc::today().and_hms(0, 0, 0);
-    let tomorrow = today + Duration::days(1);
+    let next_day = target + Duration::days(1);
 
     do_parse(reader)?.into_iter().for_each(|s| {
         // supports jobs that starts the day before
-        let mut iter = s.after(&(today - Duration::minutes(time_required as i64)));
+        let mut iter = s.after(&(target - Duration::minutes(time_required as i64)));
         for start in iter.by_ref() {
-            if start > tomorrow {
+            if start > next_day {
                 break;
             }
 
-            let start = (start.timestamp() - today.timestamp()) / MINUTES_OF_HOUR as i64;
+            let start = (start.timestamp() - target.timestamp()) / MINUTES_OF_HOUR as i64;
             let end = start + time_required as i64;
             (start..=end).for_each(|i| {
                 if i < MINUTES_OF_DAY as i64 {

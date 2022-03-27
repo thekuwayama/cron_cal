@@ -1,7 +1,8 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
-use chrono::{Duration, Utc};
+use chrono::offset::Utc;
+use chrono::{DateTime, Duration};
 use clap::{crate_description, crate_name, crate_version, Arg, ArgEnum, Command, PossibleValue};
 
 use crate::parse::CronCalender;
@@ -58,15 +59,13 @@ pub(crate) fn build() -> Command<'static> {
         )
 }
 
-pub(crate) fn format_cal(cal: &CronCalender, scale: usize) -> String {
-    let today = Utc::today().and_hms(0, 0, 0);
-
+pub(crate) fn format_cal(cal: &CronCalender, scale: usize, start: DateTime<Utc>) -> String {
     cal.chunks(scale)
         .map(|b| b.any())
         .enumerate()
         .filter_map(|(i, b)| {
             if b {
-                let start = today + Duration::minutes((i * scale) as i64);
+                let start = start + Duration::minutes((i * scale) as i64);
                 let end = start + Duration::minutes(scale as i64);
                 Some(format!("{} ~ {}", start, end))
             } else {
