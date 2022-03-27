@@ -30,6 +30,7 @@ pub(crate) fn parse<R: BufRead>(reader: &mut R, time_required: usize) -> Result<
     let tomorrow = today + Duration::days(1);
 
     do_parse(reader)?.into_iter().for_each(|s| {
+        // supports jobs that starts the day before
         let mut iter = s.after(&(today - Duration::minutes(time_required as i64)));
         for start in iter.by_ref() {
             if start > tomorrow {
