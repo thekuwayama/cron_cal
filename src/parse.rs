@@ -49,3 +49,30 @@ pub(crate) fn parse<R: BufRead>(
 
     Ok(result)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::BufReader;
+
+    use chrono::prelude::*;
+
+    const TIME_REQUIRED: usize = 5;
+
+    #[test]
+    fn test_parse() {
+        let mut reader = BufReader::new("0 30 9,12,15 1,15 May-Aug Mon,Wed,Fri *".as_bytes());
+        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+        let result = parse(&mut reader, TIME_REQUIRED, target);
+        assert!(result.is_ok());
+
+        let mut expected = CronCalender::default();
+        // -> 2018-06-01 09:30:00 UTC
+        (570..=575).for_each(|i| expected.set(i, true));
+        // -> 2018-06-01 12:30:00 UTC
+        (750..=755).for_each(|i| expected.set(i, true));
+        // -> 2018-06-01 15:30:00 UTC
+        (930..=935).for_each(|i| expected.set(i, true));
+        assert_eq!(result.unwrap(), expected);
+    }
+}
