@@ -5,40 +5,67 @@ use anyhow::{anyhow, Result};
 use chrono::offset::Utc;
 use chrono::{DateTime, Duration};
 use cron::Schedule;
+use csv::ReaderBuilder as CsvReaderBuilder;
+use serde::Deserialize;
 
 use crate::r#type::{CronCalender, MINUTES_OF_DAY, MINUTES_OF_HOUR};
 
-fn do_parse<R: BufRead>(reader: &mut R) -> Result<Vec<Schedule>> {
+struct CronSchedule {
+    schedule: Schedule,
+    time_required: usize,
+}
+
+fn cron_schedule(s: &str) -> Result<Vec<CronSchedule>> {
+    #[derive(Debug, Deserialize)]
+    struct Record {
+        schedule: String,
+        time_required: usize,
+    }
+    let mut reader = CsvReaderBuilder::new()
+        .has_headers(false)
+        .from_reader(s.as_bytes());
+
+    reader
+        .deserialize::<Record>()
+        .map(|r| {
+            let record: Record = r?;
+            Ok(CronSchedule {
+                schedule: Schedule::from_str(&record.schedule)?,
+                time_required: record.time_required,
+            })
+        })
+        .collect()
+}
+
+fn do_parse<R: BufRead>(reader: &mut R) -> Result<Vec<CronSchedule>> {
     let (vec, err): (Vec<_>, Vec<_>) = reader
         .lines()
         .filter_map(Result::ok)
-        .map(|s| Schedule::from_str(&s))
+        .map(|s| cron_schedule(&s))
         .partition(Result::is_ok);
     if !err.is_empty() {
         return Err(anyhow!("Failed to parse cron schedule"));
     }
 
-    Ok(vec.into_iter().map(Result::unwrap).collect())
+    Ok(vec.into_iter().flat_map(Result::unwrap).collect())
 }
 
-pub(crate) fn parse<R: BufRead>(
-    reader: &mut R,
-    time_required: usize,
-    target: DateTime<Utc>,
-) -> Result<CronCalender> {
+pub(crate) fn parse<R: BufRead>(reader: &mut R, target: DateTime<Utc>) -> Result<CronCalender> {
     let mut result = CronCalender::default();
     let next_day = target + Duration::days(1);
 
-    do_parse(reader)?.into_iter().for_each(|s| {
+    do_parse(reader)?.into_iter().for_each(|c| {
         // supports jobs that starts the day before
-        let mut iter = s.after(&(target - Duration::minutes(time_required as i64)));
+        let mut iter = c
+            .schedule
+            .after(&(target - Duration::minutes(c.time_required as i64)));
         for start in iter.by_ref() {
             if start > next_day {
                 break;
             }
 
             let start = (start.timestamp() - target.timestamp()) / MINUTES_OF_HOUR as i64;
-            let end = start + time_required as i64;
+            let end = start + c.time_required as i64;
             (start..=end).for_each(|i| {
                 if i < MINUTES_OF_DAY as i64 {
                     result.set(i as usize, true);
@@ -57,13 +84,11 @@ mod tests {
 
     use chrono::prelude::*;
 
-    const TIME_REQUIRED: usize = 5;
-
     #[test]
     fn test_parse() {
-        let mut reader = BufReader::new("0 30 9,12,15 1,15 May-Aug Mon,Wed,Fri *".as_bytes());
+        let mut reader = BufReader::new("\"0 30 9,12,15 1,15 May-Aug Mon,Wed,Fri *\",5".as_bytes());
         let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
-        let result = parse(&mut reader, TIME_REQUIRED, target);
+        let result = parse(&mut reader, target);
         assert!(result.is_ok());
 
         let mut expected = CronCalender::default();

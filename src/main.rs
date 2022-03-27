@@ -9,8 +9,6 @@ mod format;
 mod parse;
 mod r#type;
 
-const TIME_REQUIRED: usize = 5;
-
 fn main() {
     // CLI init
     let matches = cli::build().get_matches();
@@ -32,7 +30,7 @@ fn main() {
     let mut input = buf.as_bytes();
     // parse
     let today = Utc::today().and_hms(0, 0, 0);
-    let cal = parse::parse(&mut input, TIME_REQUIRED, today).unwrap_or_else(|e| {
+    let cal = parse::parse(&mut input, today).unwrap_or_else(|e| {
         eprintln!("{}", e);
         process::exit(1);
     });
