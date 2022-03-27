@@ -26,6 +26,10 @@ mod tests {
 
     use chrono::prelude::*;
 
+    const QUARTER: usize = 15;
+    const HALF: usize = 30;
+    const HOUR: usize = 60;
+
     #[test]
     fn test_format_cal() {
         let mut cal = CronCalender::default();
@@ -36,7 +40,15 @@ mod tests {
         // -> 2018-06-01 15:30:00 UTC
         (930..=935).for_each(|i| cal.set(i, true));
         let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
-        let result = format_cal(&cal, 30, target);
+
+        // 15
+        let result = format_cal(&cal, QUARTER, target);
+        assert_eq!(result, "2018-06-01 09:30:00 UTC ~ 2018-06-01 09:45:00 UTC\n2018-06-01 12:30:00 UTC ~ 2018-06-01 12:45:00 UTC\n2018-06-01 15:30:00 UTC ~ 2018-06-01 15:45:00 UTC");
+        // 30
+        let result = format_cal(&cal, HALF, target);
         assert_eq!(result, "2018-06-01 09:30:00 UTC ~ 2018-06-01 10:00:00 UTC\n2018-06-01 12:30:00 UTC ~ 2018-06-01 13:00:00 UTC\n2018-06-01 15:30:00 UTC ~ 2018-06-01 16:00:00 UTC");
+        // 60
+        let result = format_cal(&cal, HOUR, target);
+        assert_eq!(result, "2018-06-01 09:00:00 UTC ~ 2018-06-01 10:00:00 UTC\n2018-06-01 12:00:00 UTC ~ 2018-06-01 13:00:00 UTC\n2018-06-01 15:00:00 UTC ~ 2018-06-01 16:00:00 UTC");
     }
 }
