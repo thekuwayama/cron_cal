@@ -20,10 +20,10 @@ fn format_cal1(cal: &CronCalender, scale: usize, start: DateTime<Utc>) -> String
         .join("\n")
 }
 
-pub(crate) fn format_cal(cal: &Vec<CronCalender>, scale: usize, start: DateTime<Utc>) -> String {
-    cal.into_iter()
+pub(crate) fn format_cal(cal: &[CronCalender], scale: usize, start: DateTime<Utc>) -> String {
+    cal.iter()
         .enumerate()
-        .map(|(i, c)| format_cal1(&c, scale, start + Duration::days(i as i64)))
+        .map(|(i, c)| format_cal1(c, scale, start + Duration::days(i as i64)))
         .collect::<Vec<String>>()
         .join("\n")
 }
@@ -45,14 +45,10 @@ fn format_cal_spare1(cal: &CronCalender, scale: usize, start: DateTime<Utc>) -> 
         .join("\n")
 }
 
-pub(crate) fn format_cal_spare(
-    cal: &Vec<CronCalender>,
-    scale: usize,
-    start: DateTime<Utc>,
-) -> String {
-    cal.into_iter()
+pub(crate) fn format_cal_spare(cal: &[CronCalender], scale: usize, start: DateTime<Utc>) -> String {
+    cal.iter()
         .enumerate()
-        .map(|(i, c)| format_cal_spare1(&c, scale, start + Duration::days(i as i64)))
+        .map(|(i, c)| format_cal_spare1(c, scale, start + Duration::days(i as i64)))
         .collect::<Vec<String>>()
         .join("\n")
 }
