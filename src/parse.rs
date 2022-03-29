@@ -51,27 +51,23 @@ fn do_parse<R: BufRead>(reader: &mut R) -> Result<Vec<CronSchedule>> {
 }
 
 fn parse1(schedule: &[CronSchedule], target: DateTime<Utc>) -> Result<CronCalender> {
-    let mut result = CronCalender::default();
     let next_day = target + Duration::days(1);
-
-    schedule.iter().for_each(|c| {
+    let result = schedule.iter().fold(CronCalender::default(), |mut r, c| {
         // supports jobs that starts the day before
-        let mut iter = c
-            .schedule
-            .after(&(target - Duration::minutes(c.time_required as i64)));
-        for start in iter.by_ref() {
-            if start > next_day {
-                break;
-            }
-
-            let start = (start.timestamp() - target.timestamp()) / MINUTES_OF_HOUR as i64;
-            let end = start + c.time_required as i64;
-            (start..=end).for_each(|i| {
-                if i < MINUTES_OF_DAY as i64 {
-                    result.set(i as usize, true);
-                }
+        c.schedule
+            .after(&(target - Duration::minutes(c.time_required as i64)))
+            .take_while(|start| start < &next_day)
+            .for_each(|start| {
+                let start = (start.timestamp() - target.timestamp()) / MINUTES_OF_HOUR as i64;
+                let end = start + c.time_required as i64;
+                (start..=end).for_each(|i| {
+                    if i < MINUTES_OF_DAY as i64 {
+                        r.set(i as usize, true);
+                    }
+                });
             });
-        }
+
+        r
     });
 
     Ok(result)
