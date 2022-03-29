@@ -33,6 +33,14 @@ fn main() {
             eprintln!("Failed to parse date option: {}", e);
             process::exit(1);
         });
+    let days = matches
+        .value_of(cli::DAYS)
+        .map(|s| s.parse::<usize>())
+        .unwrap_or_else(|| Ok(1))
+        .unwrap_or_else(|e| {
+            eprintln!("Failed to parse days option: {}", e);
+            process::exit(1);
+        });
     // Read input
     let stdin = io::stdin();
     let mut buf = String::new();
@@ -42,7 +50,7 @@ fn main() {
     });
     let mut input = buf.as_bytes();
     // Parse input
-    let cal = parse::parse(&mut input, date).unwrap_or_else(|e| {
+    let cal = parse::parse(&mut input, date, days).unwrap_or_else(|e| {
         eprintln!("{}", e);
         process::exit(1);
     });

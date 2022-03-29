@@ -3,7 +3,7 @@ use chrono::{DateTime, Duration};
 
 use crate::r#type::CronCalender;
 
-pub(crate) fn format_cal(cal: &CronCalender, scale: usize, start: DateTime<Utc>) -> String {
+fn format_cal1(cal: &CronCalender, scale: usize, start: DateTime<Utc>) -> String {
     cal.chunks(scale)
         .map(|b| b.any())
         .enumerate()
@@ -20,7 +20,15 @@ pub(crate) fn format_cal(cal: &CronCalender, scale: usize, start: DateTime<Utc>)
         .join("\n")
 }
 
-pub(crate) fn format_cal_spare(cal: &CronCalender, scale: usize, start: DateTime<Utc>) -> String {
+pub(crate) fn format_cal(cal: &[CronCalender], scale: usize, start: DateTime<Utc>) -> String {
+    cal.iter()
+        .enumerate()
+        .map(|(i, c)| format_cal1(c, scale, start + Duration::days(i as i64)))
+        .collect::<Vec<String>>()
+        .join("\n")
+}
+
+fn format_cal_spare1(cal: &CronCalender, scale: usize, start: DateTime<Utc>) -> String {
     cal.chunks(scale)
         .map(|b| b.not_any())
         .enumerate()
@@ -33,6 +41,14 @@ pub(crate) fn format_cal_spare(cal: &CronCalender, scale: usize, start: DateTime
                 None
             }
         })
+        .collect::<Vec<String>>()
+        .join("\n")
+}
+
+pub(crate) fn format_cal_spare(cal: &[CronCalender], scale: usize, start: DateTime<Utc>) -> String {
+    cal.iter()
+        .enumerate()
+        .map(|(i, c)| format_cal_spare1(c, scale, start + Duration::days(i as i64)))
         .collect::<Vec<String>>()
         .join("\n")
 }
@@ -59,13 +75,13 @@ mod tests {
         let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
 
         // 15
-        let result = format_cal(&cal, QUARTER, target);
+        let result = format_cal(&vec![cal], QUARTER, target);
         assert_eq!(result, "2018-06-01 09:30:00 UTC ~ 2018-06-01 09:45:00 UTC\n2018-06-01 12:30:00 UTC ~ 2018-06-01 12:45:00 UTC\n2018-06-01 15:30:00 UTC ~ 2018-06-01 15:45:00 UTC");
         // 30
-        let result = format_cal(&cal, HALF, target);
+        let result = format_cal(&vec![cal], HALF, target);
         assert_eq!(result, "2018-06-01 09:30:00 UTC ~ 2018-06-01 10:00:00 UTC\n2018-06-01 12:30:00 UTC ~ 2018-06-01 13:00:00 UTC\n2018-06-01 15:30:00 UTC ~ 2018-06-01 16:00:00 UTC");
         // 60
-        let result = format_cal(&cal, HOUR, target);
+        let result = format_cal(&vec![cal], HOUR, target);
         assert_eq!(result, "2018-06-01 09:00:00 UTC ~ 2018-06-01 10:00:00 UTC\n2018-06-01 12:00:00 UTC ~ 2018-06-01 13:00:00 UTC\n2018-06-01 15:00:00 UTC ~ 2018-06-01 16:00:00 UTC");
     }
 
@@ -79,13 +95,13 @@ mod tests {
         let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
 
         // 15
-        let result = format_cal_spare(&cal, QUARTER, target);
+        let result = format_cal_spare(&vec![cal], QUARTER, target);
         assert_eq!(result, "2018-06-01 09:30:00 UTC ~ 2018-06-01 09:45:00 UTC\n2018-06-01 09:45:00 UTC ~ 2018-06-01 10:00:00 UTC\n2018-06-01 10:00:00 UTC ~ 2018-06-01 10:15:00 UTC\n2018-06-01 10:15:00 UTC ~ 2018-06-01 10:30:00 UTC\n2018-06-01 10:30:00 UTC ~ 2018-06-01 10:45:00 UTC\n2018-06-01 10:45:00 UTC ~ 2018-06-01 11:00:00 UTC\n2018-06-01 11:00:00 UTC ~ 2018-06-01 11:15:00 UTC\n2018-06-01 11:15:00 UTC ~ 2018-06-01 11:30:00 UTC\n2018-06-01 11:30:00 UTC ~ 2018-06-01 11:45:00 UTC\n2018-06-01 11:45:00 UTC ~ 2018-06-01 12:00:00 UTC\n2018-06-01 12:00:00 UTC ~ 2018-06-01 12:15:00 UTC\n2018-06-01 12:15:00 UTC ~ 2018-06-01 12:30:00 UTC");
         // 30
-        let result = format_cal_spare(&cal, HALF, target);
+        let result = format_cal_spare(&vec![cal], HALF, target);
         assert_eq!(result, "2018-06-01 09:30:00 UTC ~ 2018-06-01 10:00:00 UTC\n2018-06-01 10:00:00 UTC ~ 2018-06-01 10:30:00 UTC\n2018-06-01 10:30:00 UTC ~ 2018-06-01 11:00:00 UTC\n2018-06-01 11:00:00 UTC ~ 2018-06-01 11:30:00 UTC\n2018-06-01 11:30:00 UTC ~ 2018-06-01 12:00:00 UTC\n2018-06-01 12:00:00 UTC ~ 2018-06-01 12:30:00 UTC");
         // 60
-        let result = format_cal_spare(&cal, HOUR, target);
+        let result = format_cal_spare(&vec![cal], HOUR, target);
         assert_eq!(result, "2018-06-01 10:00:00 UTC ~ 2018-06-01 11:00:00 UTC\n2018-06-01 11:00:00 UTC ~ 2018-06-01 12:00:00 UTC");
     }
 }

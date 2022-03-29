@@ -50,11 +50,11 @@ fn do_parse<R: BufRead>(reader: &mut R) -> Result<Vec<CronSchedule>> {
     Ok(vec.into_iter().flat_map(Result::unwrap).collect())
 }
 
-pub(crate) fn parse<R: BufRead>(reader: &mut R, target: DateTime<Utc>) -> Result<CronCalender> {
+fn parse1(schedule: &[CronSchedule], target: DateTime<Utc>) -> Result<CronCalender> {
     let mut result = CronCalender::default();
     let next_day = target + Duration::days(1);
 
-    do_parse(reader)?.into_iter().for_each(|c| {
+    schedule.iter().for_each(|c| {
         // supports jobs that starts the day before
         let mut iter = c
             .schedule
@@ -77,6 +77,18 @@ pub(crate) fn parse<R: BufRead>(reader: &mut R, target: DateTime<Utc>) -> Result
     Ok(result)
 }
 
+pub(crate) fn parse<R: BufRead>(
+    reader: &mut R,
+    target: DateTime<Utc>,
+    period: usize,
+) -> Result<Vec<CronCalender>> {
+    let schedule = do_parse(reader)?;
+
+    (0..period)
+        .map(|i| parse1(&schedule, target + Duration::days(i as i64)))
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -88,7 +100,7 @@ mod tests {
     fn test_parse() {
         let mut reader = BufReader::new("\"0 30 9,12,15 1,15 May-Aug Mon,Wed,Fri *\",5".as_bytes());
         let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
-        let result = parse(&mut reader, target);
+        let result = parse(&mut reader, target, 1);
         assert!(result.is_ok());
 
         let mut expected = CronCalender::default();
@@ -98,6 +110,6 @@ mod tests {
         (750..=755).for_each(|i| expected.set(i, true));
         // -> 2018-06-01 15:30:00 UTC
         (930..=935).for_each(|i| expected.set(i, true));
-        assert_eq!(result.unwrap(), expected);
+        assert_eq!(result.unwrap(), vec![expected]);
     }
 }
