@@ -50,11 +50,11 @@ fn do_parse<R: BufRead>(reader: &mut R) -> Result<Vec<CronSchedule>> {
     Ok(vec.into_iter().flat_map(Result::unwrap).collect())
 }
 
-fn parse1<R: BufRead>(reader: &mut R, target: DateTime<Utc>) -> Result<CronCalender> {
+fn parse1(schedule: &[CronSchedule], target: DateTime<Utc>) -> Result<CronCalender> {
     let mut result = CronCalender::default();
     let next_day = target + Duration::days(1);
 
-    do_parse(reader)?.into_iter().for_each(|c| {
+    schedule.iter().for_each(|c| {
         // supports jobs that starts the day before
         let mut iter = c
             .schedule
@@ -82,8 +82,10 @@ pub(crate) fn parse<R: BufRead>(
     target: DateTime<Utc>,
     period: usize,
 ) -> Result<Vec<CronCalender>> {
+    let schedule = do_parse(reader)?;
+
     (0..period)
-        .map(|i| parse1(reader, target + Duration::days(i as i64)))
+        .map(|i| parse1(&schedule, target + Duration::days(i as i64)))
         .collect()
 }
 
