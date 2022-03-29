@@ -21,11 +21,10 @@ fn cron_schedule(s: &str) -> Result<Vec<CronSchedule>> {
         schedule: String,
         time_required: usize,
     }
-    let mut reader = CsvReaderBuilder::new()
-        .has_headers(false)
-        .from_reader(s.as_bytes());
 
-    reader
+    CsvReaderBuilder::new()
+        .has_headers(false)
+        .from_reader(s.as_bytes())
         .deserialize::<Record>()
         .map(|r| {
             let record: Record = r?;
