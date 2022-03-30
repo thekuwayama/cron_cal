@@ -8,7 +8,7 @@ use cron::Schedule;
 use csv::ReaderBuilder as CsvReaderBuilder;
 use serde::Deserialize;
 
-use crate::r#type::{CronCalender, MINUTES_OF_DAY, MINUTES_OF_HOUR};
+use crate::r#type::{CronCalender, MINUTES_OF_DAY, SECONDS_OF_MINUTE};
 
 struct CronSchedule {
     schedule: Schedule,
@@ -57,10 +57,10 @@ fn parse1(schedule: &[CronSchedule], target: DateTime<Utc>) -> Result<CronCalend
             .after(&(target - Duration::minutes(c.time_required as i64)))
             .take_while(|start| start < &next_day)
             .for_each(|start| {
-                let start = (start.timestamp() - target.timestamp()) / MINUTES_OF_HOUR as i64;
+                let start = (start.timestamp() - target.timestamp()) / SECONDS_OF_MINUTE as i64;
                 let end = start + c.time_required as i64;
                 (start..=end).for_each(|i| {
-                    if i < MINUTES_OF_DAY as i64 {
+                    if i >= 0 && i < MINUTES_OF_DAY as i64 {
                         r.set(i as usize, true);
                     }
                 });
@@ -105,6 +105,49 @@ mod tests {
         (750..=755).for_each(|i| expected.set(i, true));
         // -> 2018-06-01 15:30:00 UTC
         (930..=935).for_each(|i| expected.set(i, true));
+        assert_eq!(result.unwrap(), vec![expected]);
+    }
+
+    #[test]
+    fn test_parse_multiline_input() {
+        let mut reader = BufReader::new(
+            "\"0 30 9 * * * *\",5\n\"0 30 12 * * * *\",5\n\"0 30 15 * * * *\",5".as_bytes(),
+        );
+        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+        let result = parse(&mut reader, target, 1);
+        assert!(result.is_ok());
+
+        let mut expected = CronCalender::default();
+        // -> 2018-06-01 09:30:00 UTC
+        (570..=575).for_each(|i| expected.set(i, true));
+        // -> 2018-06-01 12:30:00 UTC
+        (750..=755).for_each(|i| expected.set(i, true));
+        // -> 2018-06-01 15:30:00 UTC
+        (930..=935).for_each(|i| expected.set(i, true));
+        assert_eq!(result.unwrap(), vec![expected]);
+    }
+
+    #[test]
+    fn test_parse_every_minute() {
+        let mut reader = BufReader::new("\"* * * * * * *\",1".as_bytes());
+        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+        let result = parse(&mut reader, target, 1);
+        assert!(result.is_ok());
+
+        let mut expected = CronCalender::default();
+        (0..1440).for_each(|i| expected.set(i, true));
+        assert_eq!(result.unwrap(), vec![expected]);
+    }
+
+    #[test]
+    fn test_parse_all_day() {
+        let mut reader = BufReader::new("\"0 0 * * * * *\",1440".as_bytes());
+        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+        let result = parse(&mut reader, target, 1);
+        assert!(result.is_ok());
+
+        let mut expected = CronCalender::default();
+        (0..1440).for_each(|i| expected.set(i, true));
         assert_eq!(result.unwrap(), vec![expected]);
     }
 }
