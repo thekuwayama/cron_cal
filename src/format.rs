@@ -70,34 +70,29 @@ pub fn format_rfc3339_rounding_spare(
 fn format_rfc3339_1(cal: &CronCalender, start: DateTime<Utc>) -> Vec<(String, String)> {
     cal.iter().enumerate().fold(vec![], |mut acc, (i, b)| {
         if i == 0 && *b {
-            acc.push((
-                (start + Duration::minutes(i as i64)).to_rfc3339(),
-                "".to_owned(),
-            ));
+            let start = start + Duration::minutes(i as i64);
+            acc.push((start.to_rfc3339(), "".to_owned()));
             acc
         } else if i == 0 {
             acc
         } else if *b && acc.is_empty() {
-            acc.push((
-                (start + Duration::minutes(i as i64)).to_rfc3339(),
-                "".to_owned(),
-            ));
+            let start = start + Duration::minutes(i as i64);
+            acc.push((start.to_rfc3339(), "".to_owned()));
             acc
         } else if *b && acc.last().map(|p| p.1.is_empty()).unwrap_or(true) {
             acc
         } else if *b && acc.last().map(|p| !p.1.is_empty()).unwrap_or(true) {
-            acc.push((
-                (start + Duration::minutes(i as i64)).to_rfc3339(),
-                "".to_owned(),
-            ));
+            let start = start + Duration::minutes(i as i64);
+            acc.push((start.to_rfc3339(), "".to_owned()));
             acc
         } else if !*b && acc.is_empty() {
             acc
         } else if !*b && acc.last().map(|p| p.1.is_empty()).unwrap_or(true) {
             let tmp = acc.pop();
+            let end = start + Duration::minutes((i - 1) as i64);
             acc.push((
-                tmp.map(|p| p.0).unwrap_or("".to_owned()),
-                (start + Duration::minutes((i - 1) as i64)).to_rfc3339(),
+                tmp.map(|p| p.0).unwrap_or_else(|| "".to_owned()),
+                end.to_rfc3339(),
             ));
             acc
         } else {
@@ -116,34 +111,29 @@ pub fn format_rfc3339(cal: &[CronCalender], start: DateTime<Utc>) -> Vec<(String
 fn format_rfc3339_spare_1(cal: &CronCalender, start: DateTime<Utc>) -> Vec<(String, String)> {
     cal.iter().enumerate().fold(vec![], |mut acc, (i, b)| {
         if i == 0 && !*b {
-            acc.push((
-                (start + Duration::minutes(i as i64)).to_rfc3339(),
-                "".to_owned(),
-            ));
+            let start = start + Duration::minutes(i as i64);
+            acc.push((start.to_rfc3339(), "".to_owned()));
             acc
         } else if i == 0 {
             acc
         } else if !*b && acc.is_empty() {
-            acc.push((
-                (start + Duration::minutes(i as i64)).to_rfc3339(),
-                "".to_owned(),
-            ));
+            let start = start + Duration::minutes(i as i64);
+            acc.push((start.to_rfc3339(), "".to_owned()));
             acc
         } else if !*b && acc.last().map(|p| p.1.is_empty()).unwrap_or(true) {
             acc
         } else if !*b && acc.last().map(|p| !p.1.is_empty()).unwrap_or(true) {
-            acc.push((
-                (start + Duration::minutes(i as i64)).to_rfc3339(),
-                "".to_owned(),
-            ));
+            let start = start + Duration::minutes(i as i64);
+            acc.push((start.to_rfc3339(), "".to_owned()));
             acc
         } else if *b && acc.is_empty() {
             acc
         } else if *b && acc.last().map(|p| p.1.is_empty()).unwrap_or(true) {
             let tmp = acc.pop();
+            let end = start + Duration::minutes(i as i64);
             acc.push((
-                tmp.map(|p| p.0).unwrap_or("".to_owned()),
-                (start + Duration::minutes(i as i64)).to_rfc3339(),
+                tmp.map(|p| p.0).unwrap_or_else(|| "".to_owned()),
+                end.to_rfc3339(),
             ));
             acc
         } else {
