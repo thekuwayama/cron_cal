@@ -10,6 +10,7 @@ pub(crate) const DAYS: &str = "days";
 
 #[derive(ArgEnum, Clone, Copy)]
 pub(crate) enum Scale {
+    No,
     Quarter,
     Half,
     Hour,
@@ -53,7 +54,7 @@ pub(crate) fn build() -> Command<'static> {
                 .long(SCALE)
                 .short('s')
                 .help("scale of schedule")
-                .default_value("hour")
+                .default_value("no")
                 .takes_value(true)
                 .possible_values(Scale::possible_values())
                 .required(false),

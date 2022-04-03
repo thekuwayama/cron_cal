@@ -3,7 +3,11 @@ use chrono::{DateTime, Duration};
 
 use crate::r#type::CronCalender;
 
-fn format_cal1(cal: &CronCalender, scale: usize, start: DateTime<Utc>) -> String {
+fn format_rfc3339_rounding_1(
+    cal: &CronCalender,
+    scale: usize,
+    start: DateTime<Utc>,
+) -> Vec<(String, String)> {
     cal.chunks(scale)
         .map(|b| b.any())
         .enumerate()
@@ -11,24 +15,30 @@ fn format_cal1(cal: &CronCalender, scale: usize, start: DateTime<Utc>) -> String
             if b {
                 let start = start + Duration::minutes((i * scale) as i64);
                 let end = start + Duration::minutes(scale as i64);
-                Some(format!("{} ~ {}", start, end))
+                Some((start.to_rfc3339(), end.to_rfc3339()))
             } else {
                 None
             }
         })
-        .collect::<Vec<String>>()
-        .join("\n")
+        .collect()
 }
 
-pub(crate) fn format_cal(cal: &[CronCalender], scale: usize, start: DateTime<Utc>) -> String {
+pub fn format_rfc3339_rounding(
+    cal: &[CronCalender],
+    scale: usize,
+    start: DateTime<Utc>,
+) -> Vec<(String, String)> {
     cal.iter()
         .enumerate()
-        .map(|(i, c)| format_cal1(c, scale, start + Duration::days(i as i64)))
-        .collect::<Vec<String>>()
-        .join("\n")
+        .flat_map(|(i, c)| format_rfc3339_rounding_1(c, scale, start + Duration::days(i as i64)))
+        .collect()
 }
 
-fn format_cal_spare1(cal: &CronCalender, scale: usize, start: DateTime<Utc>) -> String {
+fn format_rfc3339_rounding_spare_1(
+    cal: &CronCalender,
+    scale: usize,
+    start: DateTime<Utc>,
+) -> Vec<(String, String)> {
     cal.chunks(scale)
         .map(|b| b.not_any())
         .enumerate()
@@ -36,21 +46,117 @@ fn format_cal_spare1(cal: &CronCalender, scale: usize, start: DateTime<Utc>) -> 
             if b {
                 let start = start + Duration::minutes((i * scale) as i64);
                 let end = start + Duration::minutes(scale as i64);
-                Some(format!("{} ~ {}", start, end))
+                Some((start.to_rfc3339(), end.to_rfc3339()))
             } else {
                 None
             }
         })
-        .collect::<Vec<String>>()
-        .join("\n")
+        .collect()
 }
 
-pub(crate) fn format_cal_spare(cal: &[CronCalender], scale: usize, start: DateTime<Utc>) -> String {
+pub fn format_rfc3339_rounding_spare(
+    cal: &[CronCalender],
+    scale: usize,
+    start: DateTime<Utc>,
+) -> Vec<(String, String)> {
     cal.iter()
         .enumerate()
-        .map(|(i, c)| format_cal_spare1(c, scale, start + Duration::days(i as i64)))
-        .collect::<Vec<String>>()
-        .join("\n")
+        .flat_map(|(i, c)| {
+            format_rfc3339_rounding_spare_1(c, scale, start + Duration::days(i as i64))
+        })
+        .collect()
+}
+
+fn format_rfc3339_1(cal: &CronCalender, start: DateTime<Utc>) -> Vec<(String, String)> {
+    cal.iter().enumerate().fold(vec![], |mut acc, (i, b)| {
+        if i == 0 && *b {
+            acc.push((
+                (start + Duration::minutes(i as i64)).to_rfc3339(),
+                "".to_owned(),
+            ));
+            acc
+        } else if i == 0 {
+            acc
+        } else if *b && acc.is_empty() {
+            acc.push((
+                (start + Duration::minutes(i as i64)).to_rfc3339(),
+                "".to_owned(),
+            ));
+            acc
+        } else if *b && acc.last().map(|p| p.1.is_empty()).unwrap_or(true) {
+            acc
+        } else if *b && acc.last().map(|p| !p.1.is_empty()).unwrap_or(true) {
+            acc.push((
+                (start + Duration::minutes(i as i64)).to_rfc3339(),
+                "".to_owned(),
+            ));
+            acc
+        } else if !*b && acc.is_empty() {
+            acc
+        } else if !*b && acc.last().map(|p| p.1.is_empty()).unwrap_or(true) {
+            let tmp = acc.pop();
+            acc.push((
+                tmp.map(|p| p.0).unwrap_or("".to_owned()),
+                (start + Duration::minutes((i - 1) as i64)).to_rfc3339(),
+            ));
+            acc
+        } else {
+            acc
+        }
+    })
+}
+
+pub fn format_rfc3339(cal: &[CronCalender], start: DateTime<Utc>) -> Vec<(String, String)> {
+    cal.iter()
+        .enumerate()
+        .flat_map(|(i, c)| format_rfc3339_1(c, start + Duration::days(i as i64)))
+        .collect()
+}
+
+fn format_rfc3339_spare_1(cal: &CronCalender, start: DateTime<Utc>) -> Vec<(String, String)> {
+    cal.iter().enumerate().fold(vec![], |mut acc, (i, b)| {
+        if i == 0 && !*b {
+            acc.push((
+                (start + Duration::minutes(i as i64)).to_rfc3339(),
+                "".to_owned(),
+            ));
+            acc
+        } else if i == 0 {
+            acc
+        } else if !*b && acc.is_empty() {
+            acc.push((
+                (start + Duration::minutes(i as i64)).to_rfc3339(),
+                "".to_owned(),
+            ));
+            acc
+        } else if !*b && acc.last().map(|p| p.1.is_empty()).unwrap_or(true) {
+            acc
+        } else if !*b && acc.last().map(|p| !p.1.is_empty()).unwrap_or(true) {
+            acc.push((
+                (start + Duration::minutes(i as i64)).to_rfc3339(),
+                "".to_owned(),
+            ));
+            acc
+        } else if *b && acc.is_empty() {
+            acc
+        } else if *b && acc.last().map(|p| p.1.is_empty()).unwrap_or(true) {
+            let tmp = acc.pop();
+            acc.push((
+                tmp.map(|p| p.0).unwrap_or("".to_owned()),
+                (start + Duration::minutes(i as i64)).to_rfc3339(),
+            ));
+            acc
+        } else {
+            acc
+        }
+    })
+}
+
+pub fn format_rfc3339_spare(cal: &[CronCalender], start: DateTime<Utc>) -> Vec<(String, String)> {
+    cal.iter()
+        .enumerate()
+        .flat_map(|(i, c)| format_rfc3339_spare_1(c, start + Duration::days(i as i64)))
+        .collect()
 }
 
 #[cfg(test)]
@@ -64,44 +170,159 @@ mod tests {
     const HOUR: usize = 60;
 
     #[test]
-    fn test_format_cal() {
+    fn test_format_rfc3339_rounding() {
         let mut cal = CronCalender::default();
-        // -> 2018-06-01 09:30:00 UTC
+        // -> 2018-06-01T09:30:00+00:00
         (570..=575).for_each(|i| cal.set(i, true));
-        // -> 2018-06-01 12:30:00 UTC
+        // -> 2018-06-01T12:30:00+00:00
         (750..=755).for_each(|i| cal.set(i, true));
-        // -> 2018-06-01 15:30:00 UTC
+        // -> 2018-06-01T15:30:00+00:00
         (930..=935).for_each(|i| cal.set(i, true));
         let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
 
         // 15
-        let result = format_cal(&vec![cal], QUARTER, target);
-        assert_eq!(result, "2018-06-01 09:30:00 UTC ~ 2018-06-01 09:45:00 UTC\n2018-06-01 12:30:00 UTC ~ 2018-06-01 12:45:00 UTC\n2018-06-01 15:30:00 UTC ~ 2018-06-01 15:45:00 UTC");
+        let result = format_rfc3339_rounding(&vec![cal], QUARTER, target);
+        assert_eq!(
+            result
+                .iter()
+                .map(|p| (p.0.as_str(), p.1.as_str()))
+                .collect::<Vec<(&str, &str)>>(),
+            vec![
+                ("2018-06-01T09:30:00+00:00", "2018-06-01T09:45:00+00:00"),
+                ("2018-06-01T12:30:00+00:00", "2018-06-01T12:45:00+00:00"),
+                ("2018-06-01T15:30:00+00:00", "2018-06-01T15:45:00+00:00")
+            ]
+        );
         // 30
-        let result = format_cal(&vec![cal], HALF, target);
-        assert_eq!(result, "2018-06-01 09:30:00 UTC ~ 2018-06-01 10:00:00 UTC\n2018-06-01 12:30:00 UTC ~ 2018-06-01 13:00:00 UTC\n2018-06-01 15:30:00 UTC ~ 2018-06-01 16:00:00 UTC");
+        let result = format_rfc3339_rounding(&vec![cal], HALF, target);
+        assert_eq!(
+            result
+                .iter()
+                .map(|p| (p.0.as_str(), p.1.as_str()))
+                .collect::<Vec<(&str, &str)>>(),
+            vec![
+                ("2018-06-01T09:30:00+00:00", "2018-06-01T10:00:00+00:00"),
+                ("2018-06-01T12:30:00+00:00", "2018-06-01T13:00:00+00:00"),
+                ("2018-06-01T15:30:00+00:00", "2018-06-01T16:00:00+00:00")
+            ]
+        );
         // 60
-        let result = format_cal(&vec![cal], HOUR, target);
-        assert_eq!(result, "2018-06-01 09:00:00 UTC ~ 2018-06-01 10:00:00 UTC\n2018-06-01 12:00:00 UTC ~ 2018-06-01 13:00:00 UTC\n2018-06-01 15:00:00 UTC ~ 2018-06-01 16:00:00 UTC");
+        let result = format_rfc3339_rounding(&vec![cal], HOUR, target);
+        assert_eq!(
+            result
+                .iter()
+                .map(|p| (p.0.as_str(), p.1.as_str()))
+                .collect::<Vec<(&str, &str)>>(),
+            vec![
+                ("2018-06-01T09:00:00+00:00", "2018-06-01T10:00:00+00:00"),
+                ("2018-06-01T12:00:00+00:00", "2018-06-01T13:00:00+00:00"),
+                ("2018-06-01T15:00:00+00:00", "2018-06-01T16:00:00+00:00")
+            ]
+        );
     }
 
     #[test]
-    fn test_format_cal_spare() {
+    fn test_format_rfc3339_rounding_spare() {
         let mut cal = CronCalender::default();
-        // -> 2018-06-01 09:30:00 UTC
+        // -> 2018-06-01T09:30:00+00:00
         (0..570).for_each(|i| cal.set(i, true));
-        // -> 2018-06-01 12:30:00 UTC
+        // -> 2018-06-01T12:30:00+00:00
         (750..1440).for_each(|i| cal.set(i, true));
         let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
 
         // 15
-        let result = format_cal_spare(&vec![cal], QUARTER, target);
-        assert_eq!(result, "2018-06-01 09:30:00 UTC ~ 2018-06-01 09:45:00 UTC\n2018-06-01 09:45:00 UTC ~ 2018-06-01 10:00:00 UTC\n2018-06-01 10:00:00 UTC ~ 2018-06-01 10:15:00 UTC\n2018-06-01 10:15:00 UTC ~ 2018-06-01 10:30:00 UTC\n2018-06-01 10:30:00 UTC ~ 2018-06-01 10:45:00 UTC\n2018-06-01 10:45:00 UTC ~ 2018-06-01 11:00:00 UTC\n2018-06-01 11:00:00 UTC ~ 2018-06-01 11:15:00 UTC\n2018-06-01 11:15:00 UTC ~ 2018-06-01 11:30:00 UTC\n2018-06-01 11:30:00 UTC ~ 2018-06-01 11:45:00 UTC\n2018-06-01 11:45:00 UTC ~ 2018-06-01 12:00:00 UTC\n2018-06-01 12:00:00 UTC ~ 2018-06-01 12:15:00 UTC\n2018-06-01 12:15:00 UTC ~ 2018-06-01 12:30:00 UTC");
+        let result = format_rfc3339_rounding_spare(&vec![cal], QUARTER, target);
+        assert_eq!(
+            result
+                .iter()
+                .map(|p| (p.0.as_str(), p.1.as_str()))
+                .collect::<Vec<(&str, &str)>>(),
+            vec![
+                ("2018-06-01T09:30:00+00:00", "2018-06-01T09:45:00+00:00"),
+                ("2018-06-01T09:45:00+00:00", "2018-06-01T10:00:00+00:00"),
+                ("2018-06-01T10:00:00+00:00", "2018-06-01T10:15:00+00:00"),
+                ("2018-06-01T10:15:00+00:00", "2018-06-01T10:30:00+00:00"),
+                ("2018-06-01T10:30:00+00:00", "2018-06-01T10:45:00+00:00"),
+                ("2018-06-01T10:45:00+00:00", "2018-06-01T11:00:00+00:00"),
+                ("2018-06-01T11:00:00+00:00", "2018-06-01T11:15:00+00:00"),
+                ("2018-06-01T11:15:00+00:00", "2018-06-01T11:30:00+00:00"),
+                ("2018-06-01T11:30:00+00:00", "2018-06-01T11:45:00+00:00"),
+                ("2018-06-01T11:45:00+00:00", "2018-06-01T12:00:00+00:00"),
+                ("2018-06-01T12:00:00+00:00", "2018-06-01T12:15:00+00:00"),
+                ("2018-06-01T12:15:00+00:00", "2018-06-01T12:30:00+00:00")
+            ]
+        );
         // 30
-        let result = format_cal_spare(&vec![cal], HALF, target);
-        assert_eq!(result, "2018-06-01 09:30:00 UTC ~ 2018-06-01 10:00:00 UTC\n2018-06-01 10:00:00 UTC ~ 2018-06-01 10:30:00 UTC\n2018-06-01 10:30:00 UTC ~ 2018-06-01 11:00:00 UTC\n2018-06-01 11:00:00 UTC ~ 2018-06-01 11:30:00 UTC\n2018-06-01 11:30:00 UTC ~ 2018-06-01 12:00:00 UTC\n2018-06-01 12:00:00 UTC ~ 2018-06-01 12:30:00 UTC");
+        let result = format_rfc3339_rounding_spare(&vec![cal], HALF, target);
+        assert_eq!(
+            result
+                .iter()
+                .map(|p| (p.0.as_str(), p.1.as_str()))
+                .collect::<Vec<(&str, &str)>>(),
+            vec![
+                ("2018-06-01T09:30:00+00:00", "2018-06-01T10:00:00+00:00"),
+                ("2018-06-01T10:00:00+00:00", "2018-06-01T10:30:00+00:00"),
+                ("2018-06-01T10:30:00+00:00", "2018-06-01T11:00:00+00:00"),
+                ("2018-06-01T11:00:00+00:00", "2018-06-01T11:30:00+00:00"),
+                ("2018-06-01T11:30:00+00:00", "2018-06-01T12:00:00+00:00"),
+                ("2018-06-01T12:00:00+00:00", "2018-06-01T12:30:00+00:00")
+            ]
+        );
         // 60
-        let result = format_cal_spare(&vec![cal], HOUR, target);
-        assert_eq!(result, "2018-06-01 10:00:00 UTC ~ 2018-06-01 11:00:00 UTC\n2018-06-01 11:00:00 UTC ~ 2018-06-01 12:00:00 UTC");
+        let result = format_rfc3339_rounding_spare(&vec![cal], HOUR, target);
+        assert_eq!(
+            result
+                .iter()
+                .map(|p| (p.0.as_str(), p.1.as_str()))
+                .collect::<Vec<(&str, &str)>>(),
+            vec![
+                ("2018-06-01T10:00:00+00:00", "2018-06-01T11:00:00+00:00"),
+                ("2018-06-01T11:00:00+00:00", "2018-06-01T12:00:00+00:00")
+            ]
+        );
+    }
+
+    #[test]
+    fn test_format_rfc3339() {
+        let mut cal = CronCalender::default();
+        // -> 2018-06-01T09:30:00+00:00
+        (570..=575).for_each(|i| cal.set(i, true));
+        // -> 2018-06-01T12:30:00+00:00
+        (750..=755).for_each(|i| cal.set(i, true));
+        // -> 2018-06-01T15:30:00+00:00
+        (930..=935).for_each(|i| cal.set(i, true));
+        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+
+        let result = format_rfc3339(&vec![cal], target);
+        assert_eq!(
+            result
+                .iter()
+                .map(|p| (p.0.as_str(), p.1.as_str()))
+                .collect::<Vec<(&str, &str)>>(),
+            vec![
+                ("2018-06-01T09:30:00+00:00", "2018-06-01T09:35:00+00:00"),
+                ("2018-06-01T12:30:00+00:00", "2018-06-01T12:35:00+00:00"),
+                ("2018-06-01T15:30:00+00:00", "2018-06-01T15:35:00+00:00")
+            ]
+        );
+    }
+
+    #[test]
+    fn test_format_rfc3339_spare() {
+        let mut cal = CronCalender::default();
+        // -> 2018-06-01T09:30:00+00:00
+        (0..570).for_each(|i| cal.set(i, true));
+        // -> 2018-06-01T12:30:00+00:00
+        (750..1440).for_each(|i| cal.set(i, true));
+        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+
+        let result = format_rfc3339_spare(&vec![cal], target);
+        assert_eq!(
+            result
+                .iter()
+                .map(|p| (p.0.as_str(), p.1.as_str()))
+                .collect::<Vec<(&str, &str)>>(),
+            vec![("2018-06-01T09:30:00+00:00", "2018-06-01T12:30:00+00:00")]
+        );
     }
 }
