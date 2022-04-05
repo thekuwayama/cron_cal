@@ -6,6 +6,7 @@ use chrono::offset::Utc;
 use chrono::{DateTime, Duration};
 use cron::Schedule;
 use csv::ReaderBuilder as CsvReaderBuilder;
+use csv::Trim;
 use serde::Deserialize;
 
 use crate::r#type::{CronCalender, MINUTES_OF_DAY, SECONDS_OF_MINUTE};
@@ -24,6 +25,7 @@ fn cron_schedule(s: &str) -> Result<Vec<CronSchedule>> {
 
     CsvReaderBuilder::new()
         .has_headers(false)
+        .trim(Trim::Fields)
         .from_reader(s.as_bytes())
         .deserialize::<Record>()
         .map(|r| {
