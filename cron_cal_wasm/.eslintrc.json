@@ -9,6 +9,8 @@
         "sourceType": "module"
     },
     "rules": {
+        "comma-dangle": ["error", "never"],
+        "quotes": ["error", "single"]
     },
     "plugins": [ "html" ]
 }

@@ -83,7 +83,7 @@
                       prop.x = 'cron schedule'
                       prop.y = [
                           Number(p[0] * 1000n),
-                          Number(p[1] * 1000n),
+                          Number(p[1] * 1000n)
                       ]
 
                       return prop
@@ -112,19 +112,19 @@
               series: [
                   {
                       name: 'cron cal',
-                      data: data,
+                      data: data
                   }
               ],
               tooltip: {
                   x: {
-                      format: 'HH:mm',
+                      format: 'HH:mm'
                   }
               },
               chart: {
                   height: 350,
                   type: 'rangeBar',
                   zoom: {
-                      enabled: false,
+                      enabled: false
                   }
               },
               plotOptions: {
@@ -135,7 +135,7 @@
               xaxis: {
                   type: 'datetime',
                   min: min,
-                  max: max,
+                  max: max
               }
           }
 
