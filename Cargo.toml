@@ -1,2 +1,2 @@
 [workspace]
-members = ["cron_cal", "cron_cal.wasm"]
+members = ["cron_cal", "cron_cal_wasm"]
