@@ -52,6 +52,7 @@
           display: grid;
           grid-template-columns: 1fr 2fr 1fr;
           gap: 10px;
+          margin: 10px;
           grid-auto-rows: minmax(100px, auto);
           align-items: end;
       }
@@ -78,7 +79,7 @@
     </div>
 
     <div id="chart"></div>
-    
+
     <script type="module">
       const ApexCharts = window.ApexCharts
       import init, {parse_cron_cal} from './pkg/cron_cal_wasm.js'
