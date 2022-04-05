@@ -67,17 +67,18 @@
     <div id="chart"></div>
     
     <script type="module">
+      const ApexCharts = window.ApexCharts
       import init, {parse_cron_cal} from './pkg/cron_cal_wasm.js'
       function run() {
           init()
               .then(() => {
                   var input = document.getElementById('input').value
-                  var data = Object.values(parse_cron_cal(input))
-                  if (data == null || data.length == 0) {
+                  var d = Object.values(parse_cron_cal(input))
+                  if (d == null || d.length == 0) {
                       return 
                   }
 
-                  var data = arrayToChunks(data, 2).map(p => {
+                  var data = arrayToChunks(d, 2).map(p => {
                       var prop = {}
                       prop.x = 'cron schedule'
                       prop.y = [
