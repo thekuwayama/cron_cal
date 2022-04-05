@@ -31,6 +31,7 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: "14"
-        source-root: cron_cal_wasm
     - run: npm install
-    - run: eslint index.html
+      working-directory: ./cron_cal_wasm
+    - run: npm run lint
+      working-directory: ./cron_cal_wasm
