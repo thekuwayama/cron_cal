@@ -71,9 +71,6 @@
       function run() {
           init()
               .then(() => {
-                  var start = new Date()
-                  start.setHours(0, 0, 0)
-
                   var input = document.getElementById('input').value
                   var data = Object.values(parse_cron_cal(input))
                   if (data == null || data.length == 0) {
@@ -90,7 +87,7 @@
 
                       return prop
                   })
-                  plot(data, start)
+                  plot(data)
               })
       }
       document.getElementById('run').onclick = run
@@ -105,11 +102,10 @@
           return res
       }
 
-      function plot(data, start) {
-          var end = new Date(start)
-          end.setDate(end.getDate() + 1)
-          end = workaroundUTCDatetime(end.getTime())
-          start = workaroundUTCDatetime(start.getTime())
+      function plot(data) {
+          var min = Math.min(...data.flatMap(d => d.y))
+          min = Math.floor(min / 86400000) * 86400000
+          var max = min + 86400000
 
           var options = {
               series: [
@@ -136,19 +132,13 @@
               },
               xaxis: {
                   type: 'datetime',
-                  min: start,
-                  max: end
+                  min: min,
+                  max: max
               }
           }
           
           var chart = new ApexCharts(document.querySelector('#chart'), options)
           chart.render()
-      }
-
-      function workaroundUTCDatetime(dtMillis) {
-          var local = new Date(dtMillis)
-
-          return local.getTime() - local.getTimezoneOffset() * 60000
       }
 
       function clear() {
