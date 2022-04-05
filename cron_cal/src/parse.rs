@@ -74,7 +74,7 @@ fn parse1(schedule: &[CronSchedule], target: DateTime<Utc>) -> Result<CronCalend
     Ok(result)
 }
 
-pub(crate) fn parse<R: BufRead>(
+pub fn parse<R: BufRead>(
     reader: &mut R,
     target: DateTime<Utc>,
     period: usize,
