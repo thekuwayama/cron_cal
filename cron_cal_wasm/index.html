@@ -83,7 +83,7 @@
                       prop.x = 'cron schedule'
                       prop.y = [
                           Number(p[0] * 1000n),
-                          Number(p[1] * 1000n)
+                          Number(p[1] * 1000n),
                       ]
 
                       return prop
@@ -111,12 +111,13 @@
           var options = {
               series: [
                   {
+                      name: 'cron cal',
                       data: data,
                   }
               ],
               tooltip: {
                   x: {
-                      format: 'HH:mm'
+                      format: 'HH:mm',
                   }
               },
               chart: {
@@ -134,16 +135,22 @@
               xaxis: {
                   type: 'datetime',
                   min: min,
-                  max: max
+                  max: max,
               }
           }
-          
-          var chart = new ApexCharts(document.querySelector('#chart'), options)
-          chart.render()
+
+          var chart = new ApexCharts(document.getElementById('chart'), options)
+          if (document.getElementById('chart').innerHTML.length > 0) {
+              document.getElementById('chart').innerHTML = ''
+              chart.render()
+          } else {
+              chart.render()
+          }
       }
 
       function clear() {
           document.getElementById('input').value = ''
+          document.getElementById('chart').innerHTML = ''
       }
       document.getElementById('clear').onclick = clear
 
