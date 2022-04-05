@@ -1,3 +1,5 @@
+#![allow(clippy::unused_unit)]
+
 use chrono::offset::Utc;
 use cron_cal::format::format_unix_timestamp;
 use cron_cal::parse::parse;
