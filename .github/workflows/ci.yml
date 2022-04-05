@@ -9,7 +9,7 @@ on:
       - '*'
 
 jobs:
-  build:
+  cargo-build:
     runs-on: ubuntu-latest
     container:
       image: docker://rust:1.57.0
@@ -23,3 +23,15 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: "14"
+    - run: npm install
+      working-directory: ./cron_cal_wasm
+    - run: npm run lint
+      working-directory: ./cron_cal_wasm
