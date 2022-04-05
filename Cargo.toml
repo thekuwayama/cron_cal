@@ -1,19 +1,2 @@
-[package]
-name = "cron_cal"
-version = "0.1.0"
-authors = ["thekuwayama <thekuwayama@gmail.com>"]
-description = "cron calender"
-readme = "README.md"
-license = "MIT/Apache-2.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-anyhow = "1.0"
-bitvec = "1.0"
-chrono = "0.4"
-clap = { version = "3.1", features = ["cargo", "derive"] }
-cron = "0.10"
-csv = "1.1"
-serde = { version = "1.0", features = ["derive"] }
+[workspace]
+members = ["cron_cal", "cron_cal_wasm"]
