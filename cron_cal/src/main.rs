@@ -1,8 +1,7 @@
 use std::io::{self, prelude::*};
 use std::process;
 
-use chrono::naive::NaiveDate;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 
 mod cli;
 mod format;
@@ -47,5 +46,11 @@ fn main() {
     // Print result
     format::format_unix_timestamp(&cal, date)
         .iter()
-        .for_each(|p| println!("{} ~ {}", p.0, p.1));
+        .for_each(|p| {
+            println!(
+                "{} ~ {}",
+                DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(p.0, 0), Utc),
+                DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(p.1, 0), Utc),
+            )
+        });
 }
