@@ -80,7 +80,13 @@
           init()
               .then(() => {
                   var input = document.getElementById('input').value
-                  var d = Object.values(parse_cron_cal(input))
+                  var d
+                  try {
+                      d = Object.values(parse_cron_cal(input))
+                  } catch(e) {
+                      alert(e)
+                  }
+
                   if (d == null || d.length == 0) {
                       return 
                   }
