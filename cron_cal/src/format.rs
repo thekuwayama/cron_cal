@@ -42,7 +42,6 @@ fn format_unix_timestamp_1(cal: &CronCalender, start: DateTime<Utc>) -> Vec<(i64
     res
 }
 
-#[allow(dead_code)]
 pub fn format_unix_timestamp(cal: &[CronCalender], start: DateTime<Utc>) -> Vec<(i64, i64)> {
     cal.iter()
         .enumerate()
