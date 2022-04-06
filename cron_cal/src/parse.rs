@@ -31,7 +31,7 @@ fn cron_schedule(s: &str) -> Result<Vec<CronSchedule>> {
         .map(|r| {
             let record: Record = r?;
             Ok(CronSchedule {
-                schedule: Schedule::from_str(&record.schedule)?,
+                schedule: Schedule::from_str(&format!("0 {}", record.schedule))?,
                 time_required: record.time_required,
             })
         })
@@ -95,7 +95,7 @@ mod tests {
 
     #[test]
     fn test_parse() {
-        let mut reader = BufReader::new("\"0 30 9,12,15 1,15 May-Aug Mon,Wed,Fri *\",5".as_bytes());
+        let mut reader = BufReader::new("\"30 9,12,15 1,15 May-Aug Mon,Wed,Fri *\",5".as_bytes());
         let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
         let result = parse(&mut reader, target, 1);
         assert!(result.is_ok());
@@ -113,7 +113,7 @@ mod tests {
     #[test]
     fn test_parse_multiline_input() {
         let mut reader = BufReader::new(
-            "\"0 30 9 * * * *\",5\n\"0 30 12 * * * *\",5\n\"0 30 15 * * * *\",5".as_bytes(),
+            "\"30 9 * * * *\",5\n\"30 12 * * * *\",5\n\"30 15 * * * *\",5".as_bytes(),
         );
         let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
         let result = parse(&mut reader, target, 1);
@@ -131,7 +131,7 @@ mod tests {
 
     #[test]
     fn test_parse_every_minute() {
-        let mut reader = BufReader::new("\"* * * * * * *\",1".as_bytes());
+        let mut reader = BufReader::new("\"* * * * * *\",1".as_bytes());
         let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
         let result = parse(&mut reader, target, 1);
         assert!(result.is_ok());
@@ -143,7 +143,7 @@ mod tests {
 
     #[test]
     fn test_parse_all_day() {
-        let mut reader = BufReader::new("\"0 0 * * * * *\",1440".as_bytes());
+        let mut reader = BufReader::new("\"0 * * * * *\",1440".as_bytes());
         let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
         let result = parse(&mut reader, target, 1);
         assert!(result.is_ok());
