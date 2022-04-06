@@ -2,8 +2,7 @@ use std::io::BufRead;
 use std::str::FromStr;
 
 use anyhow::{anyhow, Result};
-use chrono::offset::Utc;
-use chrono::{DateTime, Duration};
+use chrono::{DateTime, Duration, Utc};
 use cron::Schedule;
 use csv::ReaderBuilder as CsvReaderBuilder;
 use csv::Trim;

@@ -1,7 +1,6 @@
 #![allow(clippy::unused_unit)]
 
-use chrono::naive::NaiveDateTime;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDateTime, Utc};
 use cron_cal::format::format_unix_timestamp;
 use cron_cal::parse::parse;
 use js_sys::{Array, BigInt, BigInt64Array};
