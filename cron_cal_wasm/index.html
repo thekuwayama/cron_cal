@@ -47,11 +47,13 @@
           gap: 10px;
           margin: 10px;
           grid-auto-rows: minmax(100px, auto);
-          align-items: end;
       }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <title>cron calender</title>
   </head>
@@ -66,6 +68,13 @@
       <div></div>
       <textarea id="input" cols="50" rows="10" class="fix" placeholder=" minute (0-59)\n | hour (0-23)\n | | day of the month (1-31)\n | | | month of the year (1-12)\n | | | | day of the week (0-6 with 0=Sunday)\n&quot;* * * * *&quot;,${run time}"></textarea>
       <div>
+        <p>start</p>
+        <input id="start" type="text" placeholder="Select Date.."/>
+        <p>end</p>
+        <input id="end" type="text" placeholder="Select Date.."/>
+      </div>
+      <div></div>
+      <div>
         <button id="run" type="button">Run</button>
         <button id="clear" type="button">Clear</button>        
       </div>
@@ -74,17 +83,30 @@
     <div id="chart"></div>
 
     <script type="module">
-      const ApexCharts = window.ApexCharts
       import init, {parse_cron_cal} from './pkg/cron_cal_wasm.js'
+      const ApexCharts = window.ApexCharts
+      const flatpickr = window.flatpickr
+      const startDate = flatpickr('#start', { defaultDate: new Date() })
+      const endDate = flatpickr('#end', { defaultDate: new Date().fp_incr(1) })
+
       function run() {
           init()
               .then(() => {
-                  var input = document.getElementById('input').value
+                  var start = getUtcTimestampFromYmd(startDate.element.value)
+                  var end = getUtcTimestampFromYmd(endDate.element.value)
+                  if (start >= end) {
+                      alert('`end` MUST be  greater than `start`')
+                      return
+                  }
+
+                  var days = Number(Math.floor((end - start) / 86400000))
                   var d
                   try {
-                      d = Object.values(parse_cron_cal(input))
+                      var input = document.getElementById('input').value
+                      d = Object.values(parse_cron_cal(input, BigInt(start / 1000), days))
                   } catch(e) {
                       alert(e)
+                      return
                   }
 
                   if (d == null || d.length == 0) {
@@ -101,10 +123,16 @@
 
                       return prop
                   })
-                  plot(data)
+                  plot(data, start, days)
               })
       }
       document.getElementById('run').onclick = run
+
+      function getUtcTimestampFromYmd(ymd) {
+          var date = flatpickr.parseDate(ymd, 'Y-m-d')
+
+          return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0)).getTime()
+      }
 
       function arrayToChunks(arr, size) {
           var res = []
@@ -116,10 +144,9 @@
           return res
       }
 
-      function plot(data) {
-          var min = Math.min(...data.flatMap(d => d.y))
-          min = Math.floor(min / 86400000) * 86400000
-          var max = min + 86400000
+      function plot(data, date, days) {
+          var min = date
+          var max = date + 86400000 * days
 
           var options = {
               series: [
@@ -130,7 +157,7 @@
               ],
               tooltip: {
                   x: {
-                      format: 'HH:mm'
+                      format: 'MM/dd HH:mm'
                   }
               },
               chart: {
