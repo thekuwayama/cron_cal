@@ -3,7 +3,7 @@ name: gh pages deploy
 on:
   push:
     branches:
-      - feat__gh_pages
+      - main
 
 jobs:
   deploy:
@@ -16,7 +16,7 @@ jobs:
         version: latest
 
     - name: Build
-      run: wasm-pack build --target web
+      run: wasm-pack build --target web --no-typescript
       working-directory: ./cron_cal_wasm
 
     - name: Copy
