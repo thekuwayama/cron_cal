@@ -32,6 +32,8 @@ OPTIONS:
     -V, --version        Print version information
 ```
 
+You can calculate cron schedules with the following:
+
 ```sh-session
 $ cat << EOS | cron_cal
 > "30 9 * * * *", 5
@@ -41,6 +43,18 @@ $ cat << EOS | cron_cal
 2022-04-07 09:30:00 UTC ~ 2022-04-07 09:35:00 UTC
 2022-04-07 12:30:00 UTC ~ 2022-04-07 12:35:00 UTC
 2022-04-07 15:30:00 UTC ~ 2022-04-07 15:35:00 UTC
+```
+
+
+### Input Format
+
+```
+ minute (0-59)
+ | hour (0-23)
+ | | day of the month (1-31)
+ | | | month of the year (1-12)
+ | | | | day of the week (0-6 with 0=Sunday)
+"* * * * *"${run time}
 ```
 
 
