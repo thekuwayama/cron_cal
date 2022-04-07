@@ -11,12 +11,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Setup Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        target: wasm32-unknown-unknown
-
     - uses: jetli/wasm-pack-action@v0.3.0
       with:
         version: latest
@@ -27,11 +21,14 @@ jobs:
 
     - name: Copy
       run: |-
-        cp -r ./cron_cal_wasm/pkg ./public/pkg
-        cp ./cron_cal_wasm/index.html ./public/index.html
+        rm -rf public
+        cp -r pkg public
+        cp ./index.html public/
+        rm public/.gitignore
+      working-directory: ./cron_cal_wasm
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./public
+        publish_dir: ./cron_cal_wasm/public/
