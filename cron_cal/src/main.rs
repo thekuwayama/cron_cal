@@ -1,23 +1,27 @@
 use std::io::{self, prelude::*};
 use std::process;
 
-use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
+use chrono::{Date, DateTime, NaiveDate, NaiveDateTime, Utc};
+use once_cell::sync::Lazy;
 
 mod cli;
 mod format;
 mod parse;
 mod r#type;
 
+static TODAY: Lazy<Date<Utc>> = Lazy::new(|| Utc::today());
+
 fn main() {
     // CLI init
-    let matches = cli::build().get_matches();
+    let today = TODAY.format("%Y-%m-%d").to_string();
+    let matches = cli::build(&today).get_matches();
     let date = matches
         .value_of(cli::DATE)
         .map(|s| {
             NaiveDate::parse_from_str(s, "%Y-%m-%d")
                 .map(|n| DateTime::<Utc>::from_utc(n.and_hms(0, 0, 0), Utc))
         })
-        .unwrap_or_else(|| Ok(Utc::today().and_hms(0, 0, 0)))
+        .unwrap_or_else(|| Ok(TODAY.and_hms(0, 0, 0)))
         .unwrap_or_else(|e| {
             eprintln!("Failed to parse date option: {}", e);
             process::exit(1);

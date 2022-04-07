@@ -26,7 +26,7 @@ USAGE:
     cron_cal [OPTIONS]
 
 OPTIONS:
-    -d, --date <date>    start date
+    -d, --date <date>    start date [default: 2022-04-07]
         --days <days>    target days [default: 1]
     -h, --help           Print help information
     -V, --version        Print version information
