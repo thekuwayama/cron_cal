@@ -8,10 +8,8 @@
   "license": "MIT/Apache-2.0",
   "files": [
     "cron_cal_wasm_bg.wasm",
-    "cron_cal_wasm.js",
-    "cron_cal_wasm.d.ts"
+    "cron_cal_wasm.js"
   ],
   "module": "cron_cal_wasm.js",
-  "types": "cron_cal_wasm.d.ts",
   "sideEffects": false
 }
