@@ -2,7 +2,7 @@
 name = "cron_cal"
 version = "0.1.0"
 authors = ["thekuwayama <thekuwayama@gmail.com>"]
-description = "cron calender"
+description = "CLI to calculate cron schedules"
 readme = "../README.md"
 license = "MIT/Apache-2.0"
 edition = "2021"

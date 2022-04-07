@@ -20,7 +20,7 @@ $ cargo install --git https://github.com/thekuwayama/cron_cal.git --branch main
 ```sh-session
 $ cron_cal --help
 cron_cal 0.1.0
-cron calender
+CLI to calculate cron schedules
 
 USAGE:
     cron_cal [OPTIONS]
