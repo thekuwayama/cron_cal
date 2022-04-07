@@ -9,7 +9,7 @@ mod format;
 mod parse;
 mod r#type;
 
-static TODAY: Lazy<Date<Utc>> = Lazy::new(|| Utc::today());
+static TODAY: Lazy<Date<Utc>> = Lazy::new(Utc::today);
 
 fn main() {
     // CLI init

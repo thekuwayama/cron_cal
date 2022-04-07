@@ -3,7 +3,7 @@ use clap::{crate_description, crate_name, crate_version, Arg, Command};
 pub(crate) const DATE: &str = "date";
 pub(crate) const DAYS: &str = "days";
 
-pub(crate) fn build<'a>(today: &'a str) -> Command<'a> {
+pub(crate) fn build(today: &str) -> Command {
     Command::new(crate_name!())
         .version(crate_version!())
         .about(crate_description!())
