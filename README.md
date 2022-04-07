@@ -3,7 +3,7 @@
 [![CI](https://github.com/thekuwayama/cron_cal/workflows/CI/badge.svg)](https://github.com/thekuwayama/cron_cal/actions?workflow=CI)
 [![license](https://img.shields.io/badge/license-MIT/Apache--2.0-blue?style=flat)](https://raw.githubusercontent.com/thekuwayama/cron_cal/main/LICENSE-APACHE)
 
-`cron_cal` is CLI to calculate cron schedule.
+`cron_cal` is CLI to calculate cron schedules.
 
 
 ## Install
@@ -56,6 +56,13 @@ $ cat << EOS | cron_cal
  | | | | day of the week (0-6 with 0=Sunday)
 "* * * * *"${run time}
 ```
+
+
+## GUI
+
+`cron_cal_wasm` is a Web Application to calculate cron schedules using wasm.
+
+https://thekuwayama.github.io/cron_cal/
 
 
 ## License
