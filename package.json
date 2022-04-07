@@ -1,0 +1,15 @@
+{
+  "name": "cron_cal_wasm",
+  "collaborators": [
+    "thekuwayama <thekuwayama@gmail.com>"
+  ],
+  "description": "cron calender wasm",
+  "version": "0.1.0",
+  "license": "MIT/Apache-2.0",
+  "files": [
+    "cron_cal_wasm_bg.wasm",
+    "cron_cal_wasm.js"
+  ],
+  "module": "cron_cal_wasm.js",
+  "sideEffects": false
+}
