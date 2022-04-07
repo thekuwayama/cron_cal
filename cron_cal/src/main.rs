@@ -13,12 +13,12 @@ static TODAY: Lazy<Date<Utc>> = Lazy::new(Utc::today);
 
 fn main() {
     // CLI init
-    let today = TODAY.format("%Y-%m-%d").to_string();
+    let today = TODAY.format("%F").to_string();
     let matches = cli::build(&today).get_matches();
     let date = matches
         .value_of(cli::DATE)
         .map(|s| {
-            NaiveDate::parse_from_str(s, "%Y-%m-%d")
+            NaiveDate::parse_from_str(s, "%F")
                 .map(|n| DateTime::<Utc>::from_utc(n.and_hms(0, 0, 0), Utc))
         })
         .unwrap_or_else(|| Ok(TODAY.and_hms(0, 0, 0)))
@@ -53,8 +53,12 @@ fn main() {
         .for_each(|p| {
             println!(
                 "{} ~ {}",
-                DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(p.0, 0), Utc),
-                DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(p.1, 0), Utc),
+                DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(p.0, 0), Utc)
+                    .format("%F %R")
+                    .to_string(),
+                DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(p.1, 0), Utc)
+                    .format("%F %R")
+                    .to_string(),
             )
         });
 }
