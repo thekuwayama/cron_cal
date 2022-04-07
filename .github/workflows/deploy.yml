@@ -1,0 +1,34 @@
+name: gh pages deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: jetli/wasm-pack-action@v0.3.0
+      with:
+        version: latest
+
+    - name: Build
+      run: wasm-pack build --target web --no-typescript
+      working-directory: ./cron_cal_wasm
+
+    - name: Copy
+      run: |-
+        rm -rf public
+        cp -r pkg public
+        cp ./index.html public/
+        rm public/.gitignore
+      working-directory: ./cron_cal_wasm
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./cron_cal_wasm/public/
