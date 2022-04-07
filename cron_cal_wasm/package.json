@@ -15,6 +15,6 @@
         "build": "wasm-pack build --target web --no-typescript",
         "start:pre": "rm -rf public && cp -r pkg public && cp ./index.html public/ && rm public/.gitignore",
         "start:server": "cd public && http-server -o",
-        "start": "run-s build start:pre start:server"
+        "start": "run-s start:pre start:server"
     }
 }
