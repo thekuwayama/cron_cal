@@ -1,0 +1,36 @@
+name: gh pages deploy
+
+on:
+  push:
+    branches:
+      - feat__gh_pages
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        target: wasm32-unknown-unknown
+
+    - name: Install wasm-pack
+      run: cargo install wasm-pack
+
+    - name: Build
+      run: wasm-pack build --target web
+      working-directory: ./cron_cal_wasm
+
+    - name: Copy
+      run: |-
+        cp -r ./cron_cal_wasm/pkg ./public/pkg
+        cp ./cron_cal_wasm/index.html ./public/index.html
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./public
