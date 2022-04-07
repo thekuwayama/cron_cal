@@ -12,9 +12,9 @@
     },
     "scripts": {
         "lint": "eslint index.html",
-        "build": "wasm-pack build --target web --no-typescript",
-        "start:pre": "rm -rf public && cp -r pkg public && cp ./index.html public/ && rm public/.gitignore",
-        "start:server": "cd public && http-server -o",
-        "start": "run-s start:pre start:server"
+        "build:wasm": "wasm-pack build --target web --no-typescript",
+        "build:post": "rm -rf public && cp -r pkg public && cp ./index.html public/ && rm public/.gitignore public/README.md public/package.json",
+        "build": "run-s build:wasm build:post",
+        "start": "cd public && http-server -o"
     }
 }

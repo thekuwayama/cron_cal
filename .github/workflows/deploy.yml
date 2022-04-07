@@ -24,7 +24,7 @@ jobs:
         rm -rf public
         cp -r pkg public
         cp ./index.html public/
-        rm public/.gitignore
+        rm public/.gitignore public/README.md public/package.json
       working-directory: ./cron_cal_wasm
 
     - name: Deploy
