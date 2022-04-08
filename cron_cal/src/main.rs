@@ -20,20 +20,21 @@ fn main() {
         .map(|s| {
             NaiveDate::parse_from_str(s, "%F")
                 .map(|n| DateTime::<Utc>::from_utc(n.and_hms(0, 0, 0), Utc))
+                .unwrap_or_else(|e| {
+                    eprintln!("Failed to parse date option: {}", e);
+                    process::exit(1);
+                })
         })
-        .unwrap_or_else(|| Ok(TODAY.and_hms(0, 0, 0)))
-        .unwrap_or_else(|e| {
-            eprintln!("Failed to parse date option: {}", e);
-            process::exit(1);
-        });
+        .unwrap_or_else(|| TODAY.and_hms(0, 0, 0));
     let days = matches
         .value_of(cli::DAYS)
-        .map(|s| s.parse::<usize>())
-        .unwrap_or_else(|| Ok(1))
-        .unwrap_or_else(|e| {
-            eprintln!("Failed to parse days option: {}", e);
-            process::exit(1);
-        });
+        .map(|s| {
+            s.parse::<usize>().unwrap_or_else(|e| {
+                eprintln!("Failed to parse days option: {}", e);
+                process::exit(1);
+            })
+        })
+        .unwrap_or(1);
     // Read input
     let stdin = io::stdin();
     let mut buf = String::new();
