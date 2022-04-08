@@ -41,7 +41,7 @@ fn do_parse<R: BufRead>(reader: &mut R) -> Result<Vec<CronSchedule>> {
     let (vec, err): (Vec<_>, Vec<_>) = reader
         .lines()
         .filter_map(Result::ok)
-        .map(|s| cron_schedule(&s))
+        .map(|s| cron_schedule(&s.trim()))
         .partition(Result::is_ok);
     if !err.is_empty() {
         return Err(anyhow!("Failed to parse cron schedule"));
