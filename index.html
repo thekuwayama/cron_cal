@@ -50,13 +50,10 @@
       }
     </style>
 
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.35.0/dist/apexcharts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.11/dist/flatpickr.min.js"></script>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-    <script src="/cron_cal_wasm_bg.wasm"></script>
-    <script src="/cron_cal_wasm.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.11/dist/flatpickr.min.css">
 
     <title>cron calender</title>
   </head>
@@ -69,7 +66,7 @@
 
     <div class="wrapper">
       <div></div>
-      <textarea id="input" cols="50" rows="10" class="fix" placeholder=" minute (0-59)\n | hour (0-23)\n | | day of the month (1-31)\n | | | month of the year (1-12)\n | | | | day of the week (0-6 with 0=Sunday)\n&quot;* * * * *&quot;,${run time}"></textarea>
+      <textarea id="input" cols="50" rows="10" class="fix" placeholder=" minute (0-59)\n | | hour (0-23)\n | | | day of the month (1-31)\n | | | | month of the year (1-12)\n | | | | | day of the week (0-6 with 0=Sunday)\n | | | | |  year, optionaly (1970-2100)\n&quot;* * * * * (*)&quot;, ${run time}"></textarea>
       <div>
         <p>start</p>
         <input id="start" type="text" placeholder="Select Date.."/>

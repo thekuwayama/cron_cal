@@ -1,7 +1,27 @@
 
 let wasm;
 
-let cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
+const heap = new Array(32).fill(undefined);
+
+heap.push(undefined, null, true, false);
+
+function getObject(idx) { return heap[idx]; }
+
+let heap_next = heap.length;
+
+function dropObject(idx) {
+    if (idx < 36) return;
+    heap[idx] = heap_next;
+    heap_next = idx;
+}
+
+function takeObject(idx) {
+    const ret = getObject(idx);
+    dropObject(idx);
+    return ret;
+}
+
+const cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
 
 cachedTextDecoder.decode();
 
@@ -17,12 +37,6 @@ function getStringFromWasm0(ptr, len) {
     return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
 }
 
-const heap = new Array(32).fill(undefined);
-
-heap.push(undefined, null, true, false);
-
-let heap_next = heap.length;
-
 function addHeapObject(obj) {
     if (heap_next === heap.length) heap.push(heap.length + 1);
     const idx = heap_next;
@@ -32,23 +46,9 @@ function addHeapObject(obj) {
     return idx;
 }
 
-function getObject(idx) { return heap[idx]; }
-
-function dropObject(idx) {
-    if (idx < 36) return;
-    heap[idx] = heap_next;
-    heap_next = idx;
-}
-
-function takeObject(idx) {
-    const ret = getObject(idx);
-    dropObject(idx);
-    return ret;
-}
-
 let WASM_VECTOR_LEN = 0;
 
-let cachedTextEncoder = new TextEncoder('utf-8');
+const cachedTextEncoder = new TextEncoder('utf-8');
 
 const encodeString = (typeof cachedTextEncoder.encodeInto === 'function'
     ? function (arg, view) {
@@ -121,8 +121,8 @@ function getInt32Memory0() {
 export function parse_cron_cal(input, date, days) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        var ptr0 = passStringToWasm0(input, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        var len0 = WASM_VECTOR_LEN;
+        const ptr0 = passStringToWasm0(input, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
         int64CvtShim[0] = date;
         const low1 = u32CvtShim[0];
         const high1 = u32CvtShim[1];
@@ -176,27 +176,27 @@ async function init(input) {
     }
     const imports = {};
     imports.wbg = {};
-    imports.wbg.__wbindgen_bigint_new = function(arg0, arg1) {
-        var ret = BigInt(getStringFromWasm0(arg0, arg1));
-        return addHeapObject(ret);
-    };
     imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
         takeObject(arg0);
     };
     imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
-        var ret = getStringFromWasm0(arg0, arg1);
+        const ret = getStringFromWasm0(arg0, arg1);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_new_16f24b0728c5e67b = function() {
-        var ret = new Array();
+    imports.wbg.__wbindgen_bigint_new = function(arg0, arg1) {
+        const ret = BigInt(getStringFromWasm0(arg0, arg1));
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_push_a72df856079e6930 = function(arg0, arg1) {
-        var ret = getObject(arg0).push(getObject(arg1));
+    imports.wbg.__wbg_new_94fb1279cf6afea5 = function() {
+        const ret = new Array();
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_push_40c6a90f1805aa90 = function(arg0, arg1) {
+        const ret = getObject(arg0).push(getObject(arg1));
         return ret;
     };
-    imports.wbg.__wbg_new_f1daf7cbcd2dd3e2 = function(arg0) {
-        var ret = new BigInt64Array(getObject(arg0));
+    imports.wbg.__wbg_new_01beab8e55342e3b = function(arg0) {
+        const ret = new BigInt64Array(getObject(arg0));
         return addHeapObject(ret);
     };
     imports.wbg.__wbindgen_throw = function(arg0, arg1) {
