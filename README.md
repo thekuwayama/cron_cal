@@ -54,7 +54,8 @@ $ cat << EOS | cron_cal
  | | day of the month (1-31)
  | | | month of the year (1-12)
  | | | | day of the week (0-6 with 0=Sunday)
-"* * * * *", ${run time}
+ | | | | |  year, optionaly (1970-2100)
+"* * * * * (*)", ${run time}
 ```
 
 

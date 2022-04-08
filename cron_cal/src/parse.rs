@@ -41,7 +41,7 @@ fn do_parse<R: BufRead>(reader: &mut R) -> Result<Vec<CronSchedule>> {
     let (vec, err): (Vec<_>, Vec<_>) = reader
         .lines()
         .filter_map(Result::ok)
-        .map(|s| cron_schedule(&s.trim()))
+        .map(|s| cron_schedule(s.trim()))
         .partition(Result::is_ok);
     if !err.is_empty() {
         return Err(anyhow!("Failed to parse cron schedule"));
@@ -149,6 +149,23 @@ mod tests {
 
         let mut expected = CronCalender::default();
         (0..1440).for_each(|i| expected.set(i, true));
+        assert_eq!(result.unwrap(), vec![expected]);
+    }
+
+    #[test]
+    fn test_parse_omit_year() {
+        let mut reader = BufReader::new("\"30 9,12,15 1,15 May-Aug Mon,Wed,Fri\",5".as_bytes());
+        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+        let result = parse(&mut reader, target, 1);
+        assert!(result.is_ok());
+
+        let mut expected = CronCalender::default();
+        // -> 2018-06-01 09:30:00 UTC
+        (570..=575).for_each(|i| expected.set(i, true));
+        // -> 2018-06-01 12:30:00 UTC
+        (750..=755).for_each(|i| expected.set(i, true));
+        // -> 2018-06-01 15:30:00 UTC
+        (930..=935).for_each(|i| expected.set(i, true));
         assert_eq!(result.unwrap(), vec![expected]);
     }
 }
