@@ -41,3 +41,5 @@ body {
     margin: 10px;
     grid-auto-rows: minmax(100px, auto);
 }
+
+@import '~flatpickr/dist/flatpickr.min.css';

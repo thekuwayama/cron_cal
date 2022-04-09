@@ -16,7 +16,7 @@
         "webpack-cli": "^4.9.2"
     },
     "scripts": {
-        "lint": "eslint index.html",
+        "lint": "eslint www/index.html www/js",
         "build:pre": "rm -rf public",
         "build:wasm": "wasm-pack build --target web --no-typescript",
         "build:webpack": "webpack",
