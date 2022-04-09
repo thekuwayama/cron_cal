@@ -1,20 +1,17 @@
 use std::io::{self, prelude::*};
 use std::process;
 
-use chrono::{Date, DateTime, NaiveDate, NaiveDateTime, Utc};
-use once_cell::sync::Lazy;
+use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
 
 mod cli;
 mod format;
 mod parse;
 mod r#type;
 
-static TODAY: Lazy<Date<Utc>> = Lazy::new(Utc::today);
-
 fn main() {
     // CLI init
-    let today = TODAY.format("%F").to_string();
-    let matches = cli::build(&today).get_matches();
+    let today = Utc::today();
+    let matches = cli::build(&today.format("%F").to_string()).get_matches();
     let date = matches
         .value_of(cli::DATE)
         .map(|s| {
@@ -25,7 +22,7 @@ fn main() {
                     process::exit(1);
                 })
         })
-        .unwrap_or_else(|| TODAY.and_hms(0, 0, 0));
+        .unwrap_or_else(|| today.and_hms(0, 0, 0));
     let days = matches
         .value_of(cli::DAYS)
         .map(|s| {
