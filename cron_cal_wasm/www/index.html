@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+      body {
+          margin: 0;
+          font-family: Arial, Helvetica, sans-serif;
+      }
+      
+      .topnav {
+          overflow: hidden;
+          background-color: #333;
+      }
+
+      .topnav a {
+          float: left;
+          color: #f2f2f2;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+          font-size: 17px;
+      }
+
+      .topnav a:hover {
+          background-color: #ddd;
+          color: black;
+      }
+
+      .topnav a.active {
+          background-color: #349beb;
+          color: white;
+      }
+
+      .fix {
+          resize: none;
+          padding: 1;
+          font-family: monospace, monospace;
+          overflow: hidden;
+      }
+
+      .wrapper {
+          display: grid;
+          grid-template-columns: 1fr 2fr 1fr;
+          gap: 10px;
+          margin: 10px;
+          grid-auto-rows: minmax(100px, auto);
+      }
+    </style>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.11/dist/flatpickr.min.css">
+
+    <title>cron calender</title>
+  </head>
+
+  <body>
+    <div class="topnav">
+      <a class="active" href="./">Home</a>
+      <a href="https://github.com/thekuwayama/cron_cal" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </div>
+
+    <div class="wrapper">
+      <div></div>
+      <textarea id="input" cols="50" rows="10" class="fix" placeholder=" minute (0-59)\n | | hour (0-23)\n | | | day of the month (1-31)\n | | | | month of the year (1-12)\n | | | | | day of the week (0-6 with 0=Sunday)\n | | | | |  year, optionaly (1970-2100)\n&quot;* * * * * (*)&quot;, ${run time}"></textarea>
+      <div>
+        <p>start</p>
+        <input id="start" type="text" placeholder="Select Date.."/>
+        <p>end</p>
+        <input id="end" type="text" placeholder="Select Date.."/>
+      </div>
+      <div></div>
+      <div>
+        <button id="run" type="button">Run</button>
+        <button id="clear" type="button">Clear</button>        
+      </div>
+    </div>
+
+    <div id="chart"></div>
+
+    <script>
+    </script>
+  </body>
+</html>
