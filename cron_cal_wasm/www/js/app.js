@@ -1,9 +1,10 @@
+// import
 import init, {parse_cron_cal} from '../../pkg/cron_cal_wasm.js'
 import ApexCharts from 'apexcharts'
 import flatpickr from 'flatpickr'
-const startDate = flatpickr('#start', { defaultDate: new Date() })
-const endDate = flatpickr('#end', { defaultDate: new Date().fp_incr(1) })
+import '../css/style.css'
 
+// function
 export function run() {
     init()
         .then(() => {
@@ -105,6 +106,10 @@ export function clear() {
     document.getElementById('input').value = ''
     document.getElementById('chart').innerHTML = ''
 }
+
+// init
+const startDate = flatpickr('#start', { defaultDate: new Date() })
+const endDate = flatpickr('#end', { defaultDate: new Date().fp_incr(1) })
 
 var textareas = document.getElementsByTagName('textarea')
 Array.prototype.forEach.call(textareas, function(elem) {
