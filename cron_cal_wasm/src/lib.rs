@@ -1,9 +1,10 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
-use cron_cal::format::format_unix_timestamp;
-use cron_cal::parse::parse;
 use js_sys::{Array, BigInt, BigInt64Array};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
+
+use cron_cal::format::format_unix_timestamp;
+use cron_cal::parse::parse;
 
 #[wasm_bindgen]
 pub fn parse_cron_cal(input: &str, date: i64, days: i32) -> Result<BigInt64Array, JsValue> {
