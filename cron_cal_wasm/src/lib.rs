@@ -14,7 +14,7 @@ pub fn parse_cron_cal(input: &str, date: i64, days: i32) -> Result<BigInt64Array
         Ok(cal) => Ok(BigInt64Array::new(&JsValue::from(
             format_unix_timestamp(&cal, date)
                 .iter()
-                .flat_map(|p| vec![p.0, p.1])
+                .flat_map(|p| vec![p.start, p.end])
                 .map(BigInt::from)
                 .collect::<Array>(),
         ))),

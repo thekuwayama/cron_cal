@@ -1,7 +1,7 @@
 use chrono::offset::Utc;
 use chrono::{DateTime, Duration};
 
-use crate::r#type::CronCalender;
+use crate::r#type::{CronCalender, CronSchedule};
 
 fn format_unix_timestamp_1(cal: &CronCalender, start: DateTime<Utc>) -> Vec<(i64, i64)> {
     let mut res = cal.iter().enumerate().fold(vec![], |mut acc, (i, b)| {
@@ -42,10 +42,11 @@ fn format_unix_timestamp_1(cal: &CronCalender, start: DateTime<Utc>) -> Vec<(i64
     res
 }
 
-pub fn format_unix_timestamp(cal: &[CronCalender], start: DateTime<Utc>) -> Vec<(i64, i64)> {
+pub fn format_unix_timestamp(cal: &[CronCalender], start: DateTime<Utc>) -> Vec<CronSchedule> {
     cal.iter()
         .enumerate()
         .flat_map(|(i, c)| format_unix_timestamp_1(c, start + Duration::days(i as i64)))
+        .map(CronSchedule::from)
         .collect()
 }
 
@@ -68,14 +69,20 @@ mod tests {
 
         let result = format_unix_timestamp(&vec![cal], target);
         assert_eq!(
-            result
-                .iter()
-                .map(|p| (p.0, p.1))
-                .collect::<Vec<(i64, i64)>>(),
+            result,
             vec![
-                (1527845400, 1527845700),
-                (1527856200, 1527856500),
-                (1527867000, 1527867300)
+                CronSchedule {
+                    start: 1527845400,
+                    end: 1527845700
+                },
+                CronSchedule {
+                    start: 1527856200,
+                    end: 1527856500
+                },
+                CronSchedule {
+                    start: 1527867000,
+                    end: 1527867300
+                }
             ]
         );
 
@@ -86,11 +93,11 @@ mod tests {
 
         let result = format_unix_timestamp(&vec![cal], target);
         assert_eq!(
-            result
-                .iter()
-                .map(|p| (p.0, p.1))
-                .collect::<Vec<(i64, i64)>>(),
-            vec![(1527811200, 1527897600)]
+            result,
+            vec![CronSchedule {
+                start: 1527811200,
+                end: 1527897600
+            }]
         );
     }
 }

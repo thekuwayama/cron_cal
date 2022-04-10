@@ -51,10 +51,10 @@ fn main() {
         .for_each(|p| {
             println!(
                 "{} ~ {}",
-                DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(p.0, 0), Utc)
+                DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(p.start, 0), Utc)
                     .format("%F %R")
                     .to_string(),
-                DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(p.1, 0), Utc)
+                DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(p.end, 0), Utc)
                     .format("%F %R")
                     .to_string(),
             )
