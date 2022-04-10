@@ -10,12 +10,12 @@ use serde::Deserialize;
 
 use crate::r#type::{CronCalender, MINUTES_OF_DAY, SECONDS_OF_MINUTE};
 
-struct CronSchedule {
+struct CronRecord {
     schedule: Schedule,
     time_required: usize,
 }
 
-fn cron_schedule(s: &str) -> Result<Vec<CronSchedule>> {
+fn cron_schedule(s: &str) -> Result<Vec<CronRecord>> {
     #[derive(Debug, Deserialize)]
     struct Record {
         schedule: String,
@@ -29,7 +29,7 @@ fn cron_schedule(s: &str) -> Result<Vec<CronSchedule>> {
         .deserialize::<Record>()
         .map(|r| {
             let record: Record = r?;
-            Ok(CronSchedule {
+            Ok(CronRecord {
                 schedule: Schedule::from_str(&format!("0 {}", record.schedule))?,
                 time_required: record.time_required,
             })
@@ -37,7 +37,7 @@ fn cron_schedule(s: &str) -> Result<Vec<CronSchedule>> {
         .collect()
 }
 
-fn do_parse<R: BufRead>(reader: &mut R) -> Result<Vec<CronSchedule>> {
+fn do_parse<R: BufRead>(reader: &mut R) -> Result<Vec<CronRecord>> {
     let (vec, err): (Vec<_>, Vec<_>) = reader
         .lines()
         .filter_map(Result::ok)
@@ -50,7 +50,7 @@ fn do_parse<R: BufRead>(reader: &mut R) -> Result<Vec<CronSchedule>> {
     Ok(vec.into_iter().flat_map(Result::unwrap).collect())
 }
 
-fn parse1(schedule: &[CronSchedule], target: DateTime<Utc>) -> Result<CronCalender> {
+fn parse1(schedule: &[CronRecord], target: DateTime<Utc>) -> Result<CronCalender> {
     let next_day = target + Duration::days(1);
     let result = schedule.iter().fold(CronCalender::default(), |mut r, c| {
         // supports jobs that starts the day before
