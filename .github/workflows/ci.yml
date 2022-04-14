@@ -23,6 +23,9 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+    - name: Run wasm tests
+      run: wasm-pack test --node
+      working-directory: ./cron_cal_wasm
 
   eslint:
     runs-on: ubuntu-latest
