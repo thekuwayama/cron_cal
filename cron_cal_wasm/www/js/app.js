@@ -19,22 +19,27 @@ export function run() {
             var d
             try {
                 var input = document.getElementById('input').value
-                d = Object.values(parse_cron_cal(input, BigInt(start / 1000), days))
+                d = parse_cron_cal(input, BigInt(start / 1000), days)
             } catch(e) {
                 alert(e)
                 return
             }
 
-            if (d == null || d.length == 0) {
+            if (d == null) {
                 return 
             }
 
-            var data = arrayToChunks(d, 2).map(p => {
+            d = Array.from(d.schedules)
+            if (d.length == 0) {
+                return
+            }
+
+            var data = d.map(sch => {
                 var prop = {}
                 prop.x = 'cron schedule'
                 prop.y = [
-                    Number(p[0] * 1000n),
-                    Number(p[1] * 1000n)
+                    sch.start * 1000,
+                    sch.end * 1000
                 ]
 
                 return prop
@@ -47,16 +52,6 @@ function getUtcTimestampFromYmd(ymd) {
     var date = flatpickr.parseDate(ymd, 'Y-m-d')
 
     return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0)).getTime()
-}
-
-function arrayToChunks(arr, size) {
-    var res = []
-    for (var i = 0; i < arr.length; i += size) {
-        var chunk = arr.slice(i, i + size)
-        res.push(chunk)
-    }
-
-    return res
 }
 
 function plot(data, date, days) {

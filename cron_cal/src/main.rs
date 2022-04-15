@@ -52,11 +52,9 @@ fn main() {
             println!(
                 "{} ~ {}",
                 DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(p.start, 0), Utc)
-                    .format("%F %R")
-                    .to_string(),
+                    .format("%F %R"),
                 DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(p.end, 0), Utc)
-                    .format("%F %R")
-                    .to_string(),
+                    .format("%F %R"),
             )
         });
 }

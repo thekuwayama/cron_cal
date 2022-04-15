@@ -9,20 +9,33 @@ on:
       - '*'
 
 jobs:
-  cargo-build:
+  clippy:
     runs-on: ubuntu-latest
-    container:
-      image: docker://rust:1.57.0
     steps:
     - uses: actions/checkout@v3
-    - name: Lint
-      run: |-
-        rustup component add clippy
-        cargo clippy
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+    - name: Install cargo-clippy
+      run: rustup component add clippy
+    - uses: actions-rs/cargo@v1
+      with:
+        command: clippy
+        args: -- -D warnings
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+    - uses: actions-rs/cargo@v1
+      with:
+        command: test
 
   eslint:
     runs-on: ubuntu-latest
@@ -34,4 +47,19 @@ jobs:
     - run: npm install
       working-directory: ./cron_cal_wasm
     - run: npm run lint
+      working-directory: ./cron_cal_wasm
+
+  wasm_test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        target: wasm32-unknown-unknown
+        toolchain: stable
+        override: true
+    - name: Install wasm-pack
+      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+    - run: wasm-pack test --node
       working-directory: ./cron_cal_wasm
