@@ -3205,26 +3205,6 @@ __webpack_require__.r(__webpack_exports__);
 
 let wasm;
 
-const heap = new Array(32).fill(undefined);
-
-heap.push(undefined, null, true, false);
-
-function getObject(idx) { return heap[idx]; }
-
-let heap_next = heap.length;
-
-function dropObject(idx) {
-    if (idx < 36) return;
-    heap[idx] = heap_next;
-    heap_next = idx;
-}
-
-function takeObject(idx) {
-    const ret = getObject(idx);
-    dropObject(idx);
-    return ret;
-}
-
 const cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
 
 cachedTextDecoder.decode();
@@ -3240,6 +3220,12 @@ function getUint8Memory0() {
 function getStringFromWasm0(ptr, len) {
     return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
 }
+
+const heap = new Array(32).fill(undefined);
+
+heap.push(undefined, null, true, false);
+
+let heap_next = heap.length;
 
 function addHeapObject(obj) {
     if (heap_next === heap.length) heap.push(heap.length + 1);
@@ -3316,11 +3302,25 @@ function getInt32Memory0() {
     }
     return cachegetInt32Memory0;
 }
+
+function getObject(idx) { return heap[idx]; }
+
+function dropObject(idx) {
+    if (idx < 36) return;
+    heap[idx] = heap_next;
+    heap_next = idx;
+}
+
+function takeObject(idx) {
+    const ret = getObject(idx);
+    dropObject(idx);
+    return ret;
+}
 /**
 * @param {string} input
 * @param {BigInt} date
 * @param {number} days
-* @returns {BigInt64Array}
+* @returns {any}
 */
 function parse_cron_cal(input, date, days) {
     try {
@@ -3380,27 +3380,12 @@ async function init(input) {
     }
     const imports = {};
     imports.wbg = {};
-    imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
-        takeObject(arg0);
-    };
     imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
         const ret = getStringFromWasm0(arg0, arg1);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_bigint_new = function(arg0, arg1) {
-        const ret = BigInt(getStringFromWasm0(arg0, arg1));
-        return addHeapObject(ret);
-    };
-    imports.wbg.__wbg_new_94fb1279cf6afea5 = function() {
-        const ret = new Array();
-        return addHeapObject(ret);
-    };
-    imports.wbg.__wbg_push_40c6a90f1805aa90 = function(arg0, arg1) {
-        const ret = getObject(arg0).push(getObject(arg1));
-        return ret;
-    };
-    imports.wbg.__wbg_new_01beab8e55342e3b = function(arg0) {
-        const ret = new BigInt64Array(getObject(arg0));
+    imports.wbg.__wbindgen_json_parse = function(arg0, arg1) {
+        const ret = JSON.parse(getStringFromWasm0(arg0, arg1));
         return addHeapObject(ret);
     };
     imports.wbg.__wbindgen_throw = function(arg0, arg1) {
@@ -3429,7 +3414,7 @@ async function init(input) {
 /* 22 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-module.exports = __webpack_require__.p + "2aa0f1b95cb397281ef4.wasm";
+module.exports = __webpack_require__.p + "3076f5dac0a8815dda12.wasm";
 
 /***/ })
 /******/ 	]);
@@ -3595,22 +3580,27 @@ function run() {
             var d
             try {
                 var input = document.getElementById('input').value
-                d = Object.values((0,_pkg_cron_cal_wasm_js__WEBPACK_IMPORTED_MODULE_3__.parse_cron_cal)(input, BigInt(start / 1000), days))
+                d = (0,_pkg_cron_cal_wasm_js__WEBPACK_IMPORTED_MODULE_3__.parse_cron_cal)(input, BigInt(start / 1000), days)
             } catch(e) {
                 alert(e)
                 return
             }
 
-            if (d == null || d.length == 0) {
+            if (d == null) {
                 return 
             }
 
-            var data = arrayToChunks(d, 2).map(p => {
+            d = Array.from(d.schedules)
+            if (d.length == 0) {
+                return
+            }
+
+            var data = d.map(sch => {
                 var prop = {}
                 prop.x = 'cron schedule'
                 prop.y = [
-                    Number(p[0] * 1000n),
-                    Number(p[1] * 1000n)
+                    sch.start * 1000,
+                    sch.end * 1000
                 ]
 
                 return prop
@@ -3623,16 +3613,6 @@ function getUtcTimestampFromYmd(ymd) {
     var date = flatpickr__WEBPACK_IMPORTED_MODULE_1__["default"].parseDate(ymd, 'Y-m-d')
 
     return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0)).getTime()
-}
-
-function arrayToChunks(arr, size) {
-    var res = []
-    for (var i = 0; i < arr.length; i += size) {
-        var chunk = arr.slice(i, i + size)
-        res.push(chunk)
-    }
-
-    return res
 }
 
 function plot(data, date, days) {
