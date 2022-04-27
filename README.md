@@ -12,7 +12,7 @@
 You can install `cron_cal` with the following:
 
 ```sh-session
-$ cargo install --git https://github.com/thekuwayama/cron_cal.git --branch main
+$ cargo install cron_cal
 ```
 
 
