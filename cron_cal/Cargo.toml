@@ -1,8 +1,10 @@
 [package]
 name = "cron_cal"
 version = "0.1.0"
-authors = ["thekuwayama <thekuwayama@gmail.com>"]
 description = "CLI to calculate cron schedules"
+repository = "https://github.com/thekuwayama/cron_cal"
+documentation = "https://docs.rs/cron_cal"
+authors = ["thekuwayama <thekuwayama@gmail.com>"]
 readme = "../README.md"
 license = "MIT/Apache-2.0"
 edition = "2021"
