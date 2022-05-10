@@ -3414,7 +3414,7 @@ async function init(input) {
 /* 22 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-module.exports = __webpack_require__.p + "1b69a86842682d033652.wasm";
+module.exports = __webpack_require__.p + "59e3b8f041e4057ec925.wasm";
 
 /***/ })
 /******/ 	]);
