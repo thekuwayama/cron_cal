@@ -64,7 +64,9 @@ $ cat << EOS | cron_cal
 
 `cron_cal_wasm` is a Web Application to calculate cron schedules using wasm.
 
-https://thekuwayama.github.io/cron_cal/
+- https://thekuwayama.github.io/cron_cal/
+
+<img src="/screenshots/sample.png" width="75%">
 
 
 ## License
