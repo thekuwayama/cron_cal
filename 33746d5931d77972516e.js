@@ -3200,6 +3200,7 @@ ___CSS_LOADER_EXPORT___.push([module.id, ".flatpickr-calendar{background:transpa
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
+/* harmony export */   "initSync": () => (/* binding */ initSync),
 /* harmony export */   "parse_cron_cal": () => (/* binding */ parse_cron_cal)
 /* harmony export */ });
 
@@ -3209,12 +3210,12 @@ const cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: tru
 
 cachedTextDecoder.decode();
 
-let cachegetUint8Memory0 = null;
+let cachedUint8Memory0;
 function getUint8Memory0() {
-    if (cachegetUint8Memory0 === null || cachegetUint8Memory0.buffer !== wasm.memory.buffer) {
-        cachegetUint8Memory0 = new Uint8Array(wasm.memory.buffer);
+    if (cachedUint8Memory0.byteLength === 0) {
+        cachedUint8Memory0 = new Uint8Array(wasm.memory.buffer);
     }
-    return cachegetUint8Memory0;
+    return cachedUint8Memory0;
 }
 
 function getStringFromWasm0(ptr, len) {
@@ -3295,12 +3296,12 @@ const u32CvtShim = new Uint32Array(2);
 
 const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
 
-let cachegetInt32Memory0 = null;
+let cachedInt32Memory0;
 function getInt32Memory0() {
-    if (cachegetInt32Memory0 === null || cachegetInt32Memory0.buffer !== wasm.memory.buffer) {
-        cachegetInt32Memory0 = new Int32Array(wasm.memory.buffer);
+    if (cachedInt32Memory0.byteLength === 0) {
+        cachedInt32Memory0 = new Int32Array(wasm.memory.buffer);
     }
-    return cachegetInt32Memory0;
+    return cachedInt32Memory0;
 }
 
 function getObject(idx) { return heap[idx]; }
@@ -3318,7 +3319,7 @@ function takeObject(idx) {
 }
 /**
 * @param {string} input
-* @param {BigInt} date
+* @param {bigint} date
 * @param {number} days
 * @returns {any}
 */
@@ -3374,10 +3375,7 @@ async function load(module, imports) {
     }
 }
 
-async function init(input) {
-    if (typeof input === 'undefined') {
-        input = new URL(/* asset import */ __webpack_require__(22), __webpack_require__.b);
-    }
+function getImports() {
     const imports = {};
     imports.wbg = {};
     imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
@@ -3392,29 +3390,60 @@ async function init(input) {
         throw new Error(getStringFromWasm0(arg0, arg1));
     };
 
-    if (typeof input === 'string' || (typeof Request === 'function' && input instanceof Request) || (typeof URL === 'function' && input instanceof URL)) {
-        input = fetch(input);
-    }
+    return imports;
+}
 
+function initMemory(imports, maybe_memory) {
 
+}
 
-    const { instance, module } = await load(await input, imports);
-
+function finalizeInit(instance, module) {
     wasm = instance.exports;
     init.__wbindgen_wasm_module = module;
+    cachedInt32Memory0 = new Int32Array(wasm.memory.buffer);
+    cachedUint8Memory0 = new Uint8Array(wasm.memory.buffer);
+
 
     return wasm;
 }
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (init);
+function initSync(bytes) {
+    const imports = getImports();
 
+    initMemory(imports);
+
+    const module = new WebAssembly.Module(bytes);
+    const instance = new WebAssembly.Instance(module, imports);
+
+    return finalizeInit(instance, module);
+}
+
+async function init(input) {
+    if (typeof input === 'undefined') {
+        input = new URL(/* asset import */ __webpack_require__(22), __webpack_require__.b);
+    }
+    const imports = getImports();
+
+    if (typeof input === 'string' || (typeof Request === 'function' && input instanceof Request) || (typeof URL === 'function' && input instanceof URL)) {
+        input = fetch(input);
+    }
+
+    initMemory(imports);
+
+    const { instance, module } = await load(await input, imports);
+
+    return finalizeInit(instance, module);
+}
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (init);
 
 
 /***/ }),
 /* 22 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-module.exports = __webpack_require__.p + "59e3b8f041e4057ec925.wasm";
+module.exports = __webpack_require__.p + "ff0957dc08be0ea3da91.wasm";
 
 /***/ })
 /******/ 	]);
