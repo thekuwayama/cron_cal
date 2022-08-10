@@ -3210,7 +3210,8 @@ const cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: tru
 
 cachedTextDecoder.decode();
 
-let cachedUint8Memory0;
+let cachedUint8Memory0 = new Uint8Array();
+
 function getUint8Memory0() {
     if (cachedUint8Memory0.byteLength === 0) {
         cachedUint8Memory0 = new Uint8Array(wasm.memory.buffer);
@@ -3296,7 +3297,8 @@ const u32CvtShim = new Uint32Array(2);
 
 const int64CvtShim = new BigInt64Array(u32CvtShim.buffer);
 
-let cachedInt32Memory0;
+let cachedInt32Memory0 = new Int32Array();
+
 function getInt32Memory0() {
     if (cachedInt32Memory0.byteLength === 0) {
         cachedInt32Memory0 = new Int32Array(wasm.memory.buffer);
@@ -3400,8 +3402,8 @@ function initMemory(imports, maybe_memory) {
 function finalizeInit(instance, module) {
     wasm = instance.exports;
     init.__wbindgen_wasm_module = module;
-    cachedInt32Memory0 = new Int32Array(wasm.memory.buffer);
-    cachedUint8Memory0 = new Uint8Array(wasm.memory.buffer);
+    cachedInt32Memory0 = new Int32Array();
+    cachedUint8Memory0 = new Uint8Array();
 
 
     return wasm;
@@ -3443,7 +3445,7 @@ async function init(input) {
 /* 22 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-module.exports = __webpack_require__.p + "ff0957dc08be0ea3da91.wasm";
+module.exports = __webpack_require__.p + "3a72a501c70ed2f4b919.wasm";
 
 /***/ })
 /******/ 	]);
