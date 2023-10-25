@@ -1,7 +1,7 @@
 use std::io::{self, prelude::*};
 use std::process;
 
-use chrono::{DateTime, NaiveDate, NaiveDateTime, Utc};
+use chrono::{NaiveDate, NaiveDateTime, TimeZone, Utc};
 
 mod cli;
 mod format;
@@ -10,19 +10,19 @@ mod r#type;
 
 fn main() {
     // CLI init
-    let today = Utc::today();
-    let matches = cli::build(&today.format("%F").to_string()).get_matches();
+    let now = Utc::now();
+    let matches = cli::build(&now.format("%F").to_string()).get_matches();
     let date = matches
         .value_of(cli::DATE)
         .map(|s| {
             NaiveDate::parse_from_str(s, "%F")
-                .map(|n| DateTime::<Utc>::from_utc(n.and_hms(0, 0, 0), Utc))
+                .map(|n| Utc.from_utc_datetime(&n.and_hms_opt(0, 0, 0).unwrap()))
                 .unwrap_or_else(|e| {
                     eprintln!("Failed to parse date option: {}", e);
                     process::exit(1);
                 })
         })
-        .unwrap_or_else(|| today.and_hms(0, 0, 0));
+        .unwrap_or_else(|| now);
     let days = matches
         .value_of(cli::DAYS)
         .map(|s| {
@@ -51,9 +51,9 @@ fn main() {
         .for_each(|p| {
             println!(
                 "{} ~ {}",
-                DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(p.start, 0), Utc)
+                Utc.from_utc_datetime(&NaiveDateTime::from_timestamp_opt(p.start, 0).unwrap())
                     .format("%F %R"),
-                DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(p.end, 0), Utc)
+                Utc.from_utc_datetime(&NaiveDateTime::from_timestamp_opt(p.end, 0).unwrap())
                     .format("%F %R"),
             )
         });
