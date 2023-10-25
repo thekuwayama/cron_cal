@@ -65,9 +65,9 @@ mod tests {
         (750..=755).for_each(|i| cal.set(i, true));
         // -> 2018-06-01T15:30:00+00:00
         (930..=935).for_each(|i| cal.set(i, true));
-        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+        let target = Utc.with_ymd_and_hms(2018, 6, 1, 0, 0, 0).unwrap();
 
-        let result = format_unix_timestamp(&vec![cal], target);
+        let result = format_unix_timestamp(&[cal], target);
         assert_eq!(
             result,
             vec![
@@ -89,9 +89,9 @@ mod tests {
         let mut cal = CronCalender::default();
         // -> all day
         (0..1440).for_each(|i| cal.set(i, true));
-        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+        let target = Utc.with_ymd_and_hms(2018, 6, 1, 0, 0, 0).unwrap();
 
-        let result = format_unix_timestamp(&vec![cal], target);
+        let result = format_unix_timestamp(&[cal], target);
         assert_eq!(
             result,
             vec![CronSchedule {

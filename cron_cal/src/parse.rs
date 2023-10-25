@@ -40,7 +40,7 @@ fn cron_schedule(s: &str) -> Result<Vec<CronRecord>> {
 fn do_parse<R: BufRead>(reader: &mut R) -> Result<Vec<CronRecord>> {
     let (vec, err): (Vec<_>, Vec<_>) = reader
         .lines()
-        .filter_map(Result::ok)
+        .map_while(Result::ok)
         .map(|s| cron_schedule(s.trim()))
         .partition(Result::is_ok);
     if !err.is_empty() {
@@ -95,7 +95,7 @@ mod tests {
     #[test]
     fn test_parse() {
         let mut reader = BufReader::new("\"30 9,12,15 1,15 May-Aug Mon,Wed,Fri *\",5".as_bytes());
-        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+        let target = Utc.with_ymd_and_hms(2018, 6, 1, 0, 0, 0).unwrap();
         let result = parse(&mut reader, target, 1);
         assert!(result.is_ok());
 
@@ -114,7 +114,7 @@ mod tests {
         let mut reader = BufReader::new(
             "\"30 9 * * * *\",5\n\"30 12 * * * *\",5\n\"30 15 * * * *\",5".as_bytes(),
         );
-        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+        let target = Utc.with_ymd_and_hms(2018, 6, 1, 0, 0, 0).unwrap();
         let result = parse(&mut reader, target, 1);
         assert!(result.is_ok());
 
@@ -131,7 +131,7 @@ mod tests {
     #[test]
     fn test_parse_every_minute() {
         let mut reader = BufReader::new("\"* * * * * *\",1".as_bytes());
-        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+        let target = Utc.with_ymd_and_hms(2018, 6, 1, 0, 0, 0).unwrap();
         let result = parse(&mut reader, target, 1);
         assert!(result.is_ok());
 
@@ -143,7 +143,7 @@ mod tests {
     #[test]
     fn test_parse_all_day() {
         let mut reader = BufReader::new("\"0 * * * * *\",1440".as_bytes());
-        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+        let target = Utc.with_ymd_and_hms(2018, 6, 1, 0, 0, 0).unwrap();
         let result = parse(&mut reader, target, 1);
         assert!(result.is_ok());
 
@@ -155,7 +155,7 @@ mod tests {
     #[test]
     fn test_parse_omit_year() {
         let mut reader = BufReader::new("\"30 9,12,15 1,15 May-Aug Mon,Wed,Fri\",5".as_bytes());
-        let target = Utc.ymd(2018, 6, 1).and_hms(0, 0, 0);
+        let target = Utc.with_ymd_and_hms(2018, 6, 1, 0, 0, 0).unwrap();
         let result = parse(&mut reader, target, 1);
         assert!(result.is_ok());
 
